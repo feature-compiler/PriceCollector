@@ -1,0 +1,32 @@
+---
+replicasets:
+  84197fc0-8f00-4309-94a8-dffa1b9cdb05:
+    weight: 1
+    master:
+    - 5a6a4835-22a5-4271-a81d-8ac2910af166
+    alias: storage
+    vshard_group: default
+    all_rw: false
+    roles:
+      app.roles.user_storage: true
+      vshard-storage: true
+  58472402-3a97-43b5-821c-d9ce8d0cf976:
+    weight: 0
+    master:
+    - e83b0589-8fee-430a-a97b-e1a35f98dbed
+    alias: api
+    roles:
+      app.roles.user_api: true
+      vshard-router: true
+    all_rw: false
+servers:
+  e83b0589-8fee-430a-a97b-e1a35f98dbed:
+    disabled: false
+    replicaset_uuid: 58472402-3a97-43b5-821c-d9ce8d0cf976
+    uri: localhost:3302
+  5a6a4835-22a5-4271-a81d-8ac2910af166:
+    disabled: false
+    uri: localhost:3301
+    replicaset_uuid: 84197fc0-8f00-4309-94a8-dffa1b9cdb05
+failover: false
+...
