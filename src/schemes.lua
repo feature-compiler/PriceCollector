@@ -17,7 +17,8 @@ local schema = {
             {name="price_value", type="float"},
             {name="date_created", type="string"},
             {name="approved", type="boolean"},
-            {name="product_id", type="long"}
+            {name="product_id", type="long"},
+            {name="shop_id", type="long"},
         }
     },
     token = {
@@ -37,7 +38,17 @@ local schema = {
             {name="uuid", type="string"},
             {name="name", type="string"},
         }
-    }
+    },
+    shop = {
+        type="record",
+        name="shop_schema",
+        fields={
+            {name="id", type="long"},
+            {name="uuid", type="string"},
+            {name="name", type="string"},
+        }
+
+    },
 }
 
 return schema
