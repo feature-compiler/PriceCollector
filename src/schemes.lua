@@ -49,6 +49,14 @@ local schema = {
         }
 
     },
+    barcode = {
+        type="record",
+        name="barcode_schema",
+        fields={
+            {name="barcode", type="string"},
+            {name="product_id", type="long"},
+        }
+    }
 }
 
 return schema
