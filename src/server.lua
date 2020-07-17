@@ -8,17 +8,69 @@ users:start()
 prices:start()
 
 
--- API
+-- API methods
 
-function add_user(request, user)
+function check_token(request, username, token)
     return {
-        result=users:add_user(user),
-        new_user=users:get_user(user.id)
-
+        result=nil
     }
 end
 
+function otp_request(request, phone)
+    return {
+        result=nil
+    }
+end
 
+function otp_check(request, phone, token)
+    return {
+        result=nil
+    }
+end
+
+function goods_info(request, token, barcode, shop_uuid)
+    return {
+        result=nil
+    }
+end
+
+function send_goods(request, token, goods)
+    return {
+        result=nil
+    }
+end
+
+function create_goods(request, token, goods)
+    return {
+        result=nil
+    }
+end
+
+function create_shops(request, token, goods)
+    return {
+        result=nil
+    }
+end
+
+function create_users(request, token, users)
+    return {
+        result=nil
+    }
+end
+
+function get_price_history(request, token)
+    return {
+        result=nil
+    }
+end
+
+function accept_price_history(request, price_history)
+    return {
+        result=nil
+    }
+end
+
+-- test
 local admin = test_data.admin
 local simple_user = test_data.user
 

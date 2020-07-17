@@ -96,18 +96,31 @@ end
 local app = {
     
     price_model = {},
+    product_model = {},
+    shop_model = {},
+    barcode_model = {},
 
     start = function (self)
 
         init_space()
 
         local ok_p, price = avro.create(schema.price)
+        local ok_prod, product = avro.create(schema.product)
+        local ok_s, shop = avro.create(schema.shop)
+        local ok_b, barcode = avro.create(schema.barcode)
 
-        if ok_p then
+
+        if ok_p and ok_prod and ok_s and ok_b then
             local ok_cp, compiled_price = avro.compile(price)
+            local ok_cprod, compiled_product = avro.compile(product)
+            local ok_cs, compiled_shop = avro.compile(shop)
+            local ok_cb, compiled_barcode = avro.compile(barcode)
 
-            if ok_cp then
+            if ok_cp and ok_cprod and ok_cs and ok_cb then
                 self.price_model = compiled_price
+                self.product_model = compiled_product
+                self.shop_model = compiled_shop
+                self.barcode_model = compiled_barcode
 
                 log.info(app_name .. ' [STARTED]')
                 return true
