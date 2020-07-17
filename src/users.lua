@@ -1,29 +1,90 @@
 local avro = require('avro_schema')
 local schema = require("schemes")
 local log = require("log")
+local auth = require("auth")
+local checks = require('checks')
+local utils = require('utils')
 
 local app_name = 'users'
 
+local function init_space()
+
+    local if_not_exists = true
+
+    local users = box.schema.space.create(
+        'users',
+        {
+            -- формат хранимых кортежей
+            format = {
+                {'id', 'unsigned'},
+                {'username', 'string'},
+                {'phone','string'},
+                {'is_super', 'boolean'}
+            },
+
+            if_not_exists = if_not_exists,
+        }
+    )
+
+    users:create_index('primary', {
+        type = "hash",
+        parts = {'id'},
+        if_not_exists = if_not_exists,
+    })
+
+    users:create_index('secondary', {
+        type = "hash",
+        parts = {'username'},
+        if_not_exists = if_not_exists,
+    })
+
+    local tokens = box.schema.space.create(
+        'tokens',
+        {
+            format = {
+                {'user_id', 'unsigned'},
+                {'salt', 'string'},
+                {'shadow', 'string'},
+            },
+
+            if_not_exists = if_not_exists,
+        }
+    )
+
+    tokens:create_index('primary', {
+        type = "hash",
+        parts = {'user_id'},
+        if_not_exists = if_not_exists,
+    })
+
+    tokens:create_index('shadow_index', {
+        type = "hash",
+        parts = {"shadow"},
+        if_not_exists = if_not_exists,
+    })
+end
+
 local app = {
 
-    user_model = {},
+    user_model = {};
+    token_model = {};
+    
     
     start = function (self)
-        box.once('init', function ()
-            box.schema.create_space("users")
-            box.space.users:create_index(
-                "primary", {type = "hash", parts = {1, "unsigned"}}
-            )
-        end)
+
+        init_space()
 
         local ok_u, user = avro.create(schema.user)
+        local ok_t, token = avro.create(schema.token)
         
 
-        if ok_u then
+        if ok_u and ok_t then
             local ok_cu, compiled_user = avro.compile(user)
+            local ok_ct, compiled_token = avro.compile(token)
             
-            if ok_cu then
+            if ok_cu and ok_ct then
                 self.user_model = compiled_user
+                self.token_model = compiled_token
 
                 log.info(app_name .. ' [STARTED]')
                 return true
@@ -48,14 +109,47 @@ local app = {
 
     get_user = function (self, user_id)
         local user_tuple = box.space.users:get(user_id)
-        if user_tuple == nil then
+        return user_tuple
+    end,
+        
+    add_token = function(self, user_id, new_token)
+        --check existing data
+        local user_exist = box.space.users:get(user_id)
+        if user_exist == nil then
             return false
         end
-        return user_tuple
-    
-    
-end
+        local shadow, salt = auth.create_password(new_token)
+        local token = {user_id = user_id, salt = salt, shadow = shadow}
+        local ok, tuple = self.token_model.flatten(token)
+        if not ok then
+            return false
+        end
+        box.space.tokens:replace(tuple)
+        return true
+    end,
 
+    check_token = function (self, username, incoming_token)
+        --check existing data
+        local user_exist = box.space.users.index.secondary:get(username)
+        if user_exist == nil then
+            return false
+        end
+        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+
+        local token_exist = box.space.tokens:get(user.id)
+        if token_exist == nil then
+            return false
+        end
+
+        --token validation
+        local token = utils.tuple_to_table(box.space.tokens:format(), token_exist)
+        if not auth.check_password(token.shadow, token.salt, incoming_token) then
+            return false
+        end
+        
+        return true
+
+    end
 
 }
 

@@ -17,16 +17,16 @@ local schema = {
             {name="price_value", type="float"},
             {name="date_created", type="string"},
             {name="approved", type="boolean"},
-            {name="product",
-             type={
-                type="record",
-                name="price_product",
-                fields={
-                    {name="UUID", type="string"},
-                    {name="name", type="string"}
-                }
-            }
+            {name="product_id", type="long"}
         }
+    },
+    token = {
+        type="record",
+        name="token_schema",
+        fields={
+            {name="user_id", type="long"},
+            {name="salt", type="string"},
+            {name="shadow", type="string"}
         }
     }
 }
