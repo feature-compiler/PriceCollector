@@ -28,6 +28,15 @@ local schema = {
             {name="salt", type="string"},
             {name="shadow", type="string"}
         }
+    },
+    product = {
+        type="record",
+        name="product_schema",
+        fields={
+            {name="id", type="long"},
+            {name="uuid", type="string"},
+            {name="name", type="string"},
+        }
     }
 }
 
