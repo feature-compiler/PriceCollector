@@ -1,10 +1,21 @@
 local users = require('users')
 local prices = require('prices')
 
-box.cfg{}
+box.cfg{listen=3301}
 
 users:start()
 prices:start()
+
+
+-- API
+
+function add_user(request, user)
+    return {
+        result=users:add_user(user),
+        new_user=users:get_user(user.id)
+
+    }
+end
 
 -- users:add_user({
 --     username="admin",
@@ -13,15 +24,3 @@ prices:start()
 --     is_super=true
 
 -- })
-
--- users:add_user({
---     username="not_admin",
---     phone="---------",
---     id=2,
---     is_super=false
-
--- })
-
-
--- print(users:get_user(1))
--- print(users:get_user(2))

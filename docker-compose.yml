@@ -1,0 +1,10 @@
+ version: '2'
+ services:
+   our_server:
+     build: src
+   our_http:
+     depends_on: 
+       - our_server
+     build: http
+     ports:
+      - "80:80"
