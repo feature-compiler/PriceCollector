@@ -7,6 +7,8 @@ local schema = {
             {name="username", type="string"},
             {name="phone", type="string"},
             {name="is_super", type="boolean"},
+            {name="salt", type="string"},
+            {name="shadow", type="string"},
         }
     },
     price = {
@@ -26,8 +28,7 @@ local schema = {
         name="token_schema",
         fields={
             {name="user_id", type="long"},
-            {name="salt", type="string"},
-            {name="shadow", type="string"}
+            {name="jwt", type="string"},
         }
     },
     product = {

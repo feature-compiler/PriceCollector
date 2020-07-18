@@ -14,7 +14,7 @@ local function init_space()
             -- формат хранимых кортежей
             format = {
                 {'id', 'unsigned'},
-                {'price_value', 'double'},
+                {'price_value', 'string'},
                 {'date_created','string'},
                 {'approved', 'boolean'},
                 {'product_id','unsigned'},

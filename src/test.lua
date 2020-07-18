@@ -2,10 +2,12 @@ local User = {}
 local M = {}
 
 function User:new()                         
-  newObj = {id = 1,
+  local newObj = {id = 1,
             username = 'JohnDoe',
-            phone = '+79111xxxx',
-            is_super = false}
+            phone = '+791111xxx',
+            is_super = false,
+            salt = 'salt',
+            shadow = 'shadow',}
 
   self.__index = self                      
   return setmetatable(newObj, self)       
@@ -22,3 +24,4 @@ M.user = user
 M.admin = admin
 
 return M
+

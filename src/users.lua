@@ -2,7 +2,7 @@ local avro = require('avro_schema')
 local schema = require("schemes")
 local log = require("log")
 local auth = require("auth")
-local checks = require('checks')
+local jwt = require("jwt")
 local utils = require('utils')
 
 local app_name = 'users'
@@ -19,7 +19,9 @@ local function init_space()
                 {'id', 'unsigned'},
                 {'username', 'string'},
                 {'phone','string'},
-                {'is_super', 'boolean'}
+                {'is_super', 'boolean'},
+                {'salt', 'string'},
+                {'shadow', 'string'},
             },
 
             if_not_exists = if_not_exists,
@@ -43,8 +45,7 @@ local function init_space()
         {
             format = {
                 {'user_id', 'unsigned'},
-                {'salt', 'string'},
-                {'shadow', 'string'},
+                {'jwt', 'string'},
             },
 
             if_not_exists = if_not_exists,
@@ -57,11 +58,6 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
-    tokens:create_index('shadow_index', {
-        type = "hash",
-        parts = {"shadow"},
-        if_not_exists = if_not_exists,
-    })
 end
 
 local app = {
@@ -112,42 +108,69 @@ local app = {
         return user_tuple
     end,
         
-    add_token = function(self, user_id, new_token)
+    add_token = function(self, user_id)
         --check existing data
         local user_exist = box.space.users:get(user_id)
         if user_exist == nil then
             return false
         end
-        local shadow, salt = auth.create_password(new_token)
-        local token = {user_id = user_id, salt = salt, shadow = shadow}
-        local ok, tuple = self.token_model.flatten(token)
-        if not ok then
+
+        local SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
+        local alg = "HS256"
+        local payload = {user_id = user_id, iss = "auth"}
+
+        local token, err = jwt.encode(payload, SECRET_KEY, alg)
+        print(token)
+
+        if not err == nil then
             return false
         end
+
+        local tuple = box.tuple.new{user_id, token}
         box.space.tokens:replace(tuple)
         return true
+
+        -- local shadow, salt = auth.create_password(new_token)
+        -- local token = {user_id = user_id, salt = salt, shadow = shadow}
+        -- local ok, tuple = self.token_model.flatten(token)
+        -- if not ok then
+        --     return false
+        -- end
+        -- box.space.tokens:replace(tuple)
+        -- return true
     end,
 
-    check_token = function (self, username, incoming_token)
-        --check existing data
-        local user_exist = box.space.users.index.secondary:get(username)
-        if user_exist == nil then
-            return false
-        end
-        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+    check_token = function (self, incoming_token)
 
-        local token_exist = box.space.tokens:get(user.id)
-        if token_exist == nil then
-            return false
-        end
+        local SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
+        local validate = true
+        local decoded, err = jwt.decode(incoming_token, SECRET_KEY, validate)
 
-        --token validation
-        local token = utils.tuple_to_table(box.space.tokens:format(), token_exist)
-        if not auth.check_password(token.shadow, token.salt, incoming_token) then
+        if not err == nil then
             return false
         end
         
-        return true
+        return decoded
+        --user_tuple = box.space.users:get(user_id)
+        --check existing data
+        -- local user_exist = box.space.users.index.secondary:get(username)
+        -- if user_exist == nil then
+        --     return false
+        -- end
+        -- local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+
+        -- local token_exist = box.space.tokens:get(user.id)
+        -- if token_exist == nil then
+        --     return false
+        -- end
+
+        -- --token validation
+        -- local token = utils.tuple_to_table(box.space.tokens:format(), token_exist)
+        -- if not auth.check_password(token.shadow, token.salt, incoming_token) then
+        --     return false
+        -- end
+        
+        -- return true
 
     end
 

@@ -70,16 +70,14 @@ function accept_price_history(request, price_history)
     }
 end
 
--- test
+
 local admin = test_data.admin
-local simple_user = test_data.user
-
 users:add_user(admin)
-users:add_user(simple_user)
+print(users:get_user(admin.id))
 
--- print(users:get_user(1))
--- print(users:get_user(2))
-local new_token = 'serious_strong_pass'
-users:add_token(admin.id, new_token)
-print(users:check_token(admin.username, new_token))
 
+users:add_token(admin.id)
+
+local token = box.space.tokens:get(test_data.admin.id)
+
+print(users:check_token(token.jwt).user_id)
