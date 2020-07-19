@@ -4,6 +4,7 @@ local log = require("log")
 local auth = require("auth")
 local jwt = require("jwt")
 local utils = require('utils')
+local checks = require('checks')
 
 local app_name = 'users'
 
@@ -35,8 +36,8 @@ local function init_space()
     })
 
     users:create_index('secondary', {
-        type = "hash",
-        parts = {'username'},
+        type = "tree",
+        parts = {'phone'},
         if_not_exists = if_not_exists,
     })
 
@@ -107,7 +108,52 @@ local app = {
         local user_tuple = box.space.users:get(user_id)
         return user_tuple
     end,
-        
+
+
+    print_all_data = function(self)
+        print("USERS: ")
+        for k, v in pairs(box.space.users:select()) do
+            print(k, v)
+        end
+        print("TOKENS: ")
+        for k, v in pairs(box.space.tokens:select()) do
+            print(k, v)
+        end
+    end,
+
+
+    add_password = function (self, user_id)
+        local user_exist = box.space.users:get(user_id)
+        if user_exist == nil then
+            return false
+        end
+
+        local pass = auth.generate_password(6)
+
+        local shadow, salt = auth.create_password(pass)
+        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+
+        local tuple = box.tuple.new{user_id,
+                                    user.username,
+                                    user.phone,
+                                    user.is_super,
+                                    salt,
+                                    shadow }
+
+        box.space.users:replace(tuple)
+        return true
+    end,
+
+    check_password = function(self, phone, password)
+        local user_exist = box.space.users.index.secondary:get(phone)
+        if user_exist == nil then
+            return false
+        end
+
+        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+        return auth.check_password(user.shadow, user.salt, password)
+    end,
+
     add_token = function(self, user_id)
         --check existing data
         local user_exist = box.space.users:get(user_id)
@@ -120,7 +166,6 @@ local app = {
         local payload = {user_id = user_id, iss = "auth"}
 
         local token, err = jwt.encode(payload, SECRET_KEY, alg)
-        print(token)
 
         if not err == nil then
             return false
@@ -128,49 +173,21 @@ local app = {
 
         local tuple = box.tuple.new{user_id, token}
         box.space.tokens:replace(tuple)
-        return true
-
-        -- local shadow, salt = auth.create_password(new_token)
-        -- local token = {user_id = user_id, salt = salt, shadow = shadow}
-        -- local ok, tuple = self.token_model.flatten(token)
-        -- if not ok then
-        --     return false
-        -- end
-        -- box.space.tokens:replace(tuple)
-        -- return true
+        return token
     end,
 
-    check_token = function (self, incoming_token)
+
+    decode_token = function (self, incoming_token)
 
         local SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
         local validate = true
         local decoded, err = jwt.decode(incoming_token, SECRET_KEY, validate)
 
         if not err == nil then
-            return false
+            return nil
         end
         
         return decoded
-        --user_tuple = box.space.users:get(user_id)
-        --check existing data
-        -- local user_exist = box.space.users.index.secondary:get(username)
-        -- if user_exist == nil then
-        --     return false
-        -- end
-        -- local user = utils.tuple_to_table(box.space.users:format(), user_exist)
-
-        -- local token_exist = box.space.tokens:get(user.id)
-        -- if token_exist == nil then
-        --     return false
-        -- end
-
-        -- --token validation
-        -- local token = utils.tuple_to_table(box.space.tokens:format(), token_exist)
-        -- if not auth.check_password(token.shadow, token.salt, incoming_token) then
-        --     return false
-        -- end
-        
-        -- return true
 
     end
 

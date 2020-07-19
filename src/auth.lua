@@ -17,6 +17,15 @@ local function password_digest(password, salt)
     return digest.pbkdf2(password, salt)
 end
 
+local function generate_password(length)
+    math.randomseed(os.clock()*100000000000)
+	local res = ""
+	for i = 1, length do
+		res = res .. math.random(1, 9)
+	end
+	return res
+end
+
 local function create_password(password)
     checks('string')
 
@@ -33,5 +42,6 @@ end
 
 return {
     create_password = create_password,
-    check_password = check_password
+    check_password = check_password,
+    generate_password = generate_password,
 }

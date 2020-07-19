@@ -19,6 +19,7 @@ admin.username = 'root'
 
 user = User:new()
 user.id = 2
+user.phone = "=7910121212"
 
 M.user = user
 M.admin = admin

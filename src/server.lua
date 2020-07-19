@@ -1,6 +1,7 @@
 local users = require('users')
 local prices = require('prices')
 local test_data = require('test')
+local auth = require('auth')
 
 box.cfg{listen=3301}
 
@@ -10,16 +11,33 @@ prices:start()
 
 -- API methods
 
-function check_token(request, username, token)
-    return {
-        result=nil
-    }
+local STATUS = 200
+local HEADERS = {["X-Tarantool"] = "FROM_TNT"}
+
+function add_user(request, data)
+    local result = users:add_user(data)
+    local body = {result=result}
+    return body, HEADERS, STATUS
+end
+
+function add_token(request, data)
+    local result = users:add_token(data.user_id)
+    local body = {result=result}
+    return body, HEADERS, STATUS
+end
+
+function check_token(request, data)
+
+    local result = users:decode_token(data.token)
+    local body = {result=result}
+
+    
+    return body, HEADERS, STATUS
 end
 
 function otp_request(request, phone)
-    return {
-        result=nil
-    }
+    local body = {}
+    return body, HEADERS, STATUS
 end
 
 function otp_check(request, phone, token)
@@ -69,15 +87,3 @@ function accept_price_history(request, price_history)
         result=nil
     }
 end
-
-
-local admin = test_data.admin
-users:add_user(admin)
-print(users:get_user(admin.id))
-
-
-users:add_token(admin.id)
-
-local token = box.space.tokens:get(test_data.admin.id)
-
-print(users:check_token(token.jwt).user_id)
