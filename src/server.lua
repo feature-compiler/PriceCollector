@@ -1,7 +1,6 @@
 local users = require('users')
 local prices = require('prices')
-local test_data = require('test')
-local auth = require('auth')
+local utils = require("utils")
 
 box.cfg{listen=3301}
 
@@ -15,20 +14,21 @@ local STATUS = 200
 local HEADERS = {["X-Tarantool"] = "FROM_TNT"}
 
 function add_user(request, data)
-    local result = users:add_user(data)
-    local body = {result=result}
+    local status, result = pcall(function () users:add_user(data) end)
+    local body = {accept=status, result=result}
     return body, HEADERS, STATUS
 end
 
 function add_token(request, data)
-    local result = users:add_token(data.user_id)
-    local body = {result=result}
+    local status, result = pcall(function () users:add_token(data.user_id) end)
+    local body = {accept=status, result=result}
     return body, HEADERS, STATUS
 end
 
 function check_token(request, data)
 
-    local result = users:decode_token(data.token)
+    local status, result = pcall(function () users:decode_token_token(data.token) end)
+    local body = {accept=status, result=result}
     local body = {result=result}
 
     
@@ -87,3 +87,10 @@ function accept_price_history(request, price_history)
         result=nil
     }
 end
+
+
+for k, user in pairs(utils.read_json("users")) do
+      users:add_user(user)
+end
+
+users:print_all_data()

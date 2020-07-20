@@ -28,13 +28,16 @@ local function init_space()
             if_not_exists = if_not_exists,
         }
     )
+    box.schema.sequence.create ('users_id',
+    {if_not_exists = if_not_exists})
 
     users:create_index('primary', {
-        type = "hash",
+        type = "HASH",
         parts = {'id'},
+        sequence = 'users_id',
+        unique = true,
         if_not_exists = if_not_exists,
     })
-
     users:create_index('secondary', {
         type = "tree",
         parts = {'phone'},
@@ -95,6 +98,8 @@ local app = {
     end,
 
     add_user = function (self, user)
+        --if box.space.users.index.primary
+        --user.id = box.space.users.index.primary:max().id + 1
         local ok, tuple = self.user_model.flatten(user)
 
         if not ok then

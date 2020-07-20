@@ -1,4 +1,5 @@
 M = {}
+local json = require('json')
 
 -- Функция заполняющая недостающие поля таблицы minor из таблицы major
 local function complete_table(major, minor)
@@ -19,7 +20,25 @@ local function tuple_to_table(format, tuple)
 end
 
 
+
+local function error_handler (err)
+    return err
+  end
+
+local function read_json(filename)
+    local file = io.open(filename..".json", "r")
+    local table
+    if file then
+      table = json.decode(file:read("*all"))
+      file:close()
+    end
+    return table
+end
+  
+  
+M.read_json = read_json
 M.complete_table = complete_table
 M.tuple_to_table = tuple_to_table
+M.error_handler = error_handler
 
 return M

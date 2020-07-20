@@ -1,28 +1,10 @@
-local User = {}
-local M = {}
+local utils = require("utils")
 
-function User:new()                         
-  local newObj = {id = 1,
-            username = 'JohnDoe',
-            phone = '+791111xxx',
-            is_super = false,
-            salt = 'salt',
-            shadow = 'shadow',}
+local user
 
-  self.__index = self                      
-  return setmetatable(newObj, self)       
+for k, v in pairs(utils.read_json("users")) do
+  user = v
 end
 
-admin = User:new()
-admin.is_super = true
-admin.username = 'root'
-
-user = User:new()
-user.id = 2
-user.phone = "=7910121212"
-
-M.user = user
-M.admin = admin
-
-return M
+print(user.username)
 
