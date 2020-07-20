@@ -24,10 +24,14 @@ local function init_space()
             if_not_exists = if_not_exists,
         }
     )
+    box.schema.sequence.create ('prices_id',
+    {if_not_exists = if_not_exists})
 
     prices:create_index('primary', {
-        type = "hash",
+        type = "HASH",
         parts = {'id'},
+        sequence = 'prices_id',
+        unique = true,
         if_not_exists = if_not_exists,
     })
 
@@ -45,9 +49,14 @@ local function init_space()
         }
     )
 
+    box.schema.sequence.create ('products_id',
+    {if_not_exists = if_not_exists})
+
     products:create_index('primary', {
         type = "hash",
         parts = {'id'},
+        sequence = 'products_id',
+        unique = true,
         if_not_exists = if_not_exists,
     })
 
@@ -65,9 +74,14 @@ local function init_space()
         }
     )
 
+    box.schema.sequence.create ('shops_id',
+    {if_not_exists = if_not_exists})
+
     shops:create_index('primary', {
         type = "hash",
         parts = {'id'},
+        sequence = 'shops_id',
+        unique = true,
         if_not_exists = if_not_exists,
     })
 
