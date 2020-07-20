@@ -1,6 +1,7 @@
 local users = require('users')
 local prices = require('prices')
 local utils = require("utils")
+local json = require('json')
 
 box.cfg{listen=3301}
 
@@ -15,24 +16,23 @@ local HEADERS = {["X-Tarantool"] = "FROM_TNT"}
 
 function add_user(request, data)
     local status, result = pcall(function () users:add_user(data) end)
-    local body = {accept=status, result=result}
+    local body = {accept=status, data=result}
     return body, HEADERS, STATUS
 end
 
 function add_token(request, data)
     local status, result = pcall(function () users:add_token(data.user_id) end)
-    local body = {accept=status, result=result}
-    return body, HEADERS, STATUS
+    return result, HEADERS, STATUS
 end
 
 function check_token(request, data)
 
-    local status, result = pcall(function () users:decode_token_token(data.token) end)
-    local body = {accept=status, result=result}
-    local body = {result=result}
+    local status, result = pcall(function () users:decode_token(data.token) end)
+    if status then
+        status, result = pcall(function () prices:get_shops() end)
+    end
 
-    
-    return body, HEADERS, STATUS
+    return result, HEADERS, STATUS
 end
 
 function otp_request(request, phone)
@@ -64,7 +64,10 @@ function create_goods(request, token, goods)
     }
 end
 
-function create_shops(request, token, goods)
+function create_shops(request, data)
+
+    --local status, result = pcall(function () prices:add_shop(data.token) end)
+
     return {
         result=nil
     }
@@ -89,8 +92,15 @@ function accept_price_history(request, price_history)
 end
 
 
-for k, user in pairs(utils.read_json("users")) do
-      users:add_user(user)
-end
+-- for k, user in pairs(utils.read_json("data/users")) do
+--       print(users:add_user(user))
+-- end
 
-users:print_all_data()
+-- for k, shop in pairs(utils.read_json("data/shops")) do
+--     print(prices:add_shop(shop))
+-- end
+
+-- users:print_all_data()
+-- prices:print_all_data()
+
+-- print(prices:get_shops())

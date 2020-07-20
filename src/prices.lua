@@ -8,6 +8,7 @@ local function init_space()
 
     local if_not_exists = true
 
+
     local prices = box.schema.space.create(
         'prices',
         {
@@ -78,7 +79,7 @@ local function init_space()
     {if_not_exists = if_not_exists})
 
     shops:create_index('primary', {
-        type = "hash",
+        type = "HASH",
         parts = {'id'},
         sequence = 'shops_id',
         unique = true,
@@ -146,7 +147,36 @@ local app = {
         end
         return false
 
-    end
+    end,
+
+    add_shop = function (self, shop)
+        shop.id = box.sequence.shops_id:next()
+        local ok, tuple = self.shop_model.flatten(shop)
+
+        if not ok then
+            print("NOT OK TUPLE")
+            return false
+        end
+        box.space.shops:replace(tuple)
+        return true
+    end,
+
+    get_shops = function(self)
+        local shops_ =  box.space.shops:select()
+        print(shops_)
+        return shops_
+    end,
+
+    print_all_data = function(self)
+        print("\nSHOPS: ")
+        for k, v in pairs(box.space.shops:select()) do
+            print(k, v)
+        end
+        print("\nPRODUCTS: ")
+        for k, v in pairs(box.space.tokens:select()) do
+            print(k, v)
+        end
+    end,
 
 
 }

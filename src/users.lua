@@ -100,13 +100,14 @@ local app = {
     add_user = function (self, user)
         --if box.space.users.index.primary
         --user.id = box.space.users.index.primary:max().id + 1
+        user.id = box.sequence.users_id:next()
         local ok, tuple = self.user_model.flatten(user)
 
         if not ok then
             return false
         end
         box.space.users:replace(tuple)
-        return true
+        return user
     end,
 
     get_user = function (self, user_id)

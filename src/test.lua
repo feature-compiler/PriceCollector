@@ -1,10 +1,14 @@
-local utils = require("utils")
+local http = require('curl').http()
+local json = require('json')
 
-local user
+local URI = 'http://127.0.0.1/api'
+function request(method, body)
+  local resp = http:request(
+      method, URI, body
+  )
 
-for k, v in pairs(utils.read_json("users")) do
-  user = v
+  print(resp.body)
+
 end
 
-print(user.username)
-
+request('POST', '{"method": "add", "params": ['..json.encode(pokemon)..']}')
