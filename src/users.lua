@@ -5,6 +5,7 @@ local auth = require("auth")
 local jwt = require("jwt")
 local utils = require('utils')
 local checks = require('checks')
+local json = require('json')
 
 local app_name = 'users'
 
@@ -98,8 +99,6 @@ local app = {
     end,
 
     add_user = function (self, user)
-        --if box.space.users.index.primary
-        --user.id = box.space.users.index.primary:max().id + 1
         user.id = box.sequence.users_id:next()
         local ok, tuple = self.user_model.flatten(user)
 
@@ -115,16 +114,8 @@ local app = {
         return user_tuple
     end,
 
-
-    print_all_data = function(self)
-        print("USERS: ")
-        for k, v in pairs(box.space.users:select()) do
-            print(k, v)
-        end
-        print("TOKENS: ")
-        for k, v in pairs(box.space.tokens:select()) do
-            print(k, v)
-        end
+    get_users = function (self)
+        return utils.tables_to_table(box.space.users)
     end,
 
 

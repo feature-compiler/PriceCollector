@@ -1,6 +1,7 @@
 local avro = require('avro_schema')
 local schema = require("schemes")
 local log = require("log")
+local utils = require("utils")
 
 local app_name = 'prices'
 
@@ -162,22 +163,28 @@ local app = {
     end,
 
     get_shops = function(self)
-        local shops_ =  box.space.shops:select()
-        print(shops_)
-        return shops_
+        return utils.tables_to_table(box.space.shops)
     end,
 
-    print_all_data = function(self)
-        print("\nSHOPS: ")
-        for k, v in pairs(box.space.shops:select()) do
-            print(k, v)
-        end
-        print("\nPRODUCTS: ")
-        for k, v in pairs(box.space.tokens:select()) do
-            print(k, v)
-        end
+    get_products = function(self)
+        return utils.tables_to_table(box.space.products)
     end,
 
+    get_barcodes = function(self)
+        return utils.tables_to_table(box.space.barcodes)
+    end,
+
+    get_goods = function(self)
+        local goods_ =  {}
+        for key, price in box.space.prices:pairs() do
+            local price_ = utils.tuple_to_table(box.space.shops:format(), price)
+            if price_.approved == true then
+                --append price_ to goods
+            end
+            table.insert(goods_, price_)
+        end
+        return goods_
+    end,
 
 }
 

@@ -20,6 +20,14 @@ local function tuple_to_table(format, tuple)
 end
 
 
+local function tables_to_table(box_space)
+    local table_ = {}
+    for key, obj in box_space:pairs() do
+        table.insert(table_, tuple_to_table(box_space:format(), obj))
+    end
+    return table_
+end
+
 
 local function error_handler (err)
     return err
@@ -34,9 +42,15 @@ local function read_json(filename)
     end
     return table
 end
+
+local function json_response(lua_object)
+    return json.encode(lua_object)
+end
   
   
 M.read_json = read_json
+M.tables_to_table = tables_to_table
+M.json_response = json_response
 M.complete_table = complete_table
 M.tuple_to_table = tuple_to_table
 M.error_handler = error_handler
