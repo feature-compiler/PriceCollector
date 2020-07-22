@@ -62,6 +62,14 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
+    products:create_index('secondary', {
+        type = "tree",
+        parts = {'uuid'},
+        unique = true,
+        if_not_exists = if_not_exists,
+    })
+
+
     local shops = box.schema.space.create(
         'shops',
         {
@@ -87,6 +95,13 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
+    shops:create_index('secondary', {
+        type = "tree",
+        parts = {'uuid'},
+        unique = true,
+        if_not_exists = if_not_exists,
+    })
+
     local barcodes = box.schema.space.create(
         'barcodes',
         {
@@ -100,12 +115,12 @@ local function init_space()
         }
     )
 
-    barcodes:create_index('primary', {
-        type = "hash",
-        parts = {'product_id'},
+    barcodes:create_index('secondary', {
+        type = "tree",
+        parts = {'barcode'},
+        unique = true,
         if_not_exists = if_not_exists,
     })
-
 
 end
 
@@ -159,6 +174,57 @@ local app = {
         end
         box.space.shops:replace(tuple)
         return true
+    end,
+
+
+
+    add_product = function (self, product)
+        -- product [ uuid: , name: ] (uuid is unique)
+        print(product)
+        product.id = box.sequence.products_id:next()
+
+        local ok, tuple = self.product_model.flatten(product)
+
+        if not ok then
+            return false
+        end
+
+        box.space.products:replace(tuple)
+        return product
+    end,
+
+     add_barcode = function (self, barcode)
+        -- barcode [product_id, barcode_value] last is unique
+        local ok, tuple = self.barcode_model.flatten(barcode)
+
+        if not ok then
+            return false
+        end
+        box.space.barcodes:replace(tuple)
+        return barcode
+    end,
+
+    add_good = function (self, barcodes, product)
+
+        --check existing product with same uuid
+        local product_exist = box.space.products.index.secondary:get(product.uuid)
+        if product_exist == nil then
+            product = self.add_product(self, product)
+        else
+            product = product_exist
+        end
+
+        -- barcodes is {'123', '345', '567'}
+        for _, barcode_value in pairs(barcodes) do
+            --check existing barcode with same barcode value
+            local barcode = {product_id=product.id, barcode=barcode_value}
+            local barcode_exist = box.space.barcodes.index.secondary:get(barcode_value)
+
+            if barcode_exist == nil then
+                --create barcode
+                barcode = self.add_barcode(self, barcode)
+            end
+        end
     end,
 
     get_shops = function(self)

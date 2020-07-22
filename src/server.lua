@@ -11,9 +11,6 @@ prices:start()
 
 -- API methods
 
-local STATUS = 200
-local HEADERS = {["X-Tarantool"] = "FROM_TNT"}
-
 function add_user(request, data)
     local user = users:add_user(data)
     return {
@@ -30,13 +27,13 @@ end
 
 function check_token(request, data)
 
-    local status, result = pcall(function () users:decode_token(data.token) end)
-    if status then
+    local accepted, result = pcall(function () users:decode_token(data.token) end)
+    if accepted then
         result = prices:get_shops()
     end
 
     return {
-        status = status,
+        accepted = accepted,
         result = result
     }
 end
@@ -72,13 +69,17 @@ end
 
 function create_shops(request, data)
 
-    local result
-    local shops = data.shops
-    for key, shop in pairs(shops) do
-        result = prices:add_shop(shop)
+    
+    local status, result = pcall(function () users:decode_token(data.token) end)
+
+    if status then
+        for key, shop in pairs(data.shops) do
+            result = prices:add_shop(shop)
+        end
     end
 
     return {
+        status=status,
         result=result
     }
 end
@@ -101,20 +102,37 @@ function accept_price_history(request, price_history)
     }
 end
 
-function test(request, data)
+function get_all(request, data)
 
     return {
-        result=users:get_users()
+        users=users:get_users(),
+        shops=prices:get_shops(),
+        products=prices:get_products(),
+        goods=prices:get_goods(),
+        barcodes=prices:get_barcodes(),
     }
 end
 
 
--- for k, user in pairs(test_data.users) do
---       users:add_user(user)
+-- for _, good in pairs(test_data.goods) do
+--     local product_data = {name=good.name, uuid=good.uuid}
+    
+
+--     local barcodes = good.barcodes
+--     prices:add_good(barcodes, product_data)
 -- end
 
--- for k, user in pairs(test_data.users) do
---     users:add_user(user)
+-- print("PRODUCTS")
+-- for k, v in pairs(prices:get_products()) do
+--     print(json.encode(v))
 -- end
 
-print(users:get_users())
+-- print("BARCODES")
+-- for k, v in pairs(prices:get_barcodes()) do
+--     print(json.encode(v))
+-- end
+
+-- print("GOOD")
+-- for k, v in pairs(prices:get_goods()) do
+--     print(json.encode(v))
+-- end

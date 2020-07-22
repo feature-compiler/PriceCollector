@@ -1,7 +1,7 @@
 M  = {}
 
 local barcodes_and_prod_name = {}
-local prices = {}
+local goods = {}
 local shops = {}
 local users = {}
 
@@ -14,10 +14,14 @@ users.user_1 = user_1
 local shop_1 = {uuid="a5bf7d6a-696c-4ed7-9798-04594b88dec6", name="Пятерочка, Оруженйный 41"}
 shops.shop_1 = shop_1
 
+-- goods
+local good_1 = {barcodes={"54491472", "54491473"}, name="Coca Cola 0.5", uuid="123456"}
+goods.good_1 = good_1
+
 
 M.users = users
 M.shops = shops
 M.barcodes_and_prod_name = barcodes_and_prod_name
-M.prices = prices
+M.goods = goods
 
 return M
