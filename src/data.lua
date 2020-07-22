@@ -15,7 +15,7 @@ local shop_1 = {uuid="a5bf7d6a-696c-4ed7-9798-04594b88dec6", name="Пятеро�
 shops.shop_1 = shop_1
 
 -- goods
-local good_1 = {barcodes={"54491472", "54491473"}, name="Coca Cola 0.5", uuid="123456"}
+local good_1 = {barcodes={"54491472", "54491473", "23123"},  uuid="123456", name="Coca Cola 0.5",}
 goods.good_1 = good_1
 
 

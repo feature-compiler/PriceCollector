@@ -36,8 +36,8 @@ local schema = {
         name="product_schema",
         fields={
             {name="id", type="long"},
-            {name="uuid", type="string"},
             {name="name", type="string"},
+            {name="uuid", type="string"},     
         }
     },
     shop = {

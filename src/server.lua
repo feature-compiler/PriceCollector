@@ -61,9 +61,21 @@ function send_goods(request, token, goods)
     }
 end
 
-function create_goods(request, token, goods)
+function create_goods(request, data)
+    local status, result = pcall(function () users:decode_token(data.token) end)
+
+    if status then
+        for _, good in pairs(data.goods) do
+            local product_data = {name=good.name, uuid=good.uuid}
+            local barcodes = good.barcodes
+            prices:add_good(barcodes, product_data)
+        end
+    end
+
+ 
     return {
-        result=nil
+        status=status,
+        result=result,
     }
 end
 
@@ -73,7 +85,7 @@ function create_shops(request, data)
     local status, result = pcall(function () users:decode_token(data.token) end)
 
     if status then
-        for key, shop in pairs(data.shops) do
+        for _, shop in pairs(data.shops) do
             result = prices:add_shop(shop)
         end
     end
@@ -114,25 +126,24 @@ function get_all(request, data)
 end
 
 
--- for _, good in pairs(test_data.goods) do
---     local product_data = {name=good.name, uuid=good.uuid}
-    
+for _, good in pairs(test_data.goods) do
+    local product_data = {name=good.name, uuid=good.uuid}
+    local barcodes = good.barcodes
+    good.barcodes = nil
+    prices:add_good(barcodes, product_data)
+end
 
---     local barcodes = good.barcodes
---     prices:add_good(barcodes, product_data)
--- end
+print("PRODUCTS")
+for k, v in pairs(prices:get_products()) do
+    print(json.encode(v))
+end
 
--- print("PRODUCTS")
--- for k, v in pairs(prices:get_products()) do
---     print(json.encode(v))
--- end
+print("BARCODES")
+for k, v in pairs(prices:get_barcodes()) do
+    print(json.encode(v))
+end
 
--- print("BARCODES")
--- for k, v in pairs(prices:get_barcodes()) do
---     print(json.encode(v))
--- end
-
--- print("GOOD")
--- for k, v in pairs(prices:get_goods()) do
---     print(json.encode(v))
--- end
+print("GOOD")
+for k, v in pairs(prices:get_goods()) do
+    print(json.encode(v))
+end
