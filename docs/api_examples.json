@@ -1,0 +1,8 @@
+{
+    "method": "create_shops",
+    "token": "TOKEN",
+    "params": [{"shops":[{"name":"Пятерочка, Оруженйный 41","uuid": "a5bf7d6a-696c-4ed7-9798-04594b88dec6"},
+                         {"name": "Азбука вкуса, петровка 26", "uuid": "b1b8d80c-02b8-4631-8ce3-e04045666a44"}
+                        ]}
+                    ]
+}
