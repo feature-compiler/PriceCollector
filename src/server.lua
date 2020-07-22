@@ -1,6 +1,6 @@
 local users = require('users')
 local prices = require('prices')
-local utils = require("utils")
+local json = require('json')
 local test_data = require('data')
 
 box.cfg{listen=3301}
@@ -32,7 +32,7 @@ function check_token(request, data)
 
     local status, result = pcall(function () users:decode_token(data.token) end)
     if status then
-        status, result = pcall(function () prices:get_shops() end)
+        result = prices:get_shops()
     end
 
     return {
@@ -72,10 +72,14 @@ end
 
 function create_shops(request, data)
 
-    --local status, result = pcall(function () prices:add_shop(data.token) end)
+    local result
+    local shops = data.shops
+    for key, shop in pairs(shops) do
+        result = prices:add_shop(shop)
+    end
 
     return {
-        result=nil
+        result=result
     }
 end
 
@@ -99,25 +103,18 @@ end
 
 function test(request, data)
 
-    users:print_all_data()
-    prices:print_all_data()
     return {
         result=users:get_users()
     }
 end
 
 
-for k, user in pairs(test_data.users) do
-      users:add_user(user)
-end
-
--- for k, shop in pairs(utils.read_json("shops")) do
---     print(prices:add_shop(shop))
+-- for k, user in pairs(test_data.users) do
+--       users:add_user(user)
 -- end
 
--- users:print_all_data()
--- prices:print_all_data()
-
--- print(prices:get_shops())
+-- for k, user in pairs(test_data.users) do
+--     users:add_user(user)
+-- end
 
 print(users:get_users())

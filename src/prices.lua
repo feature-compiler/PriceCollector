@@ -155,7 +155,6 @@ local app = {
         local ok, tuple = self.shop_model.flatten(shop)
 
         if not ok then
-            print("NOT OK TUPLE")
             return false
         end
         box.space.shops:replace(tuple)
