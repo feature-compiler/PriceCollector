@@ -1,6 +1,13 @@
-{
+
+{ 
     "method": "create_shops",
     "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8",
                 "shops":[{"uuid": "a5bf7d6a-696c-4ed7-9798-04594b88dec6", "name":"Пятерочка, Оруженйный 41"},
                          {"uuid": "b1b8d80c-02b8-4631-8ce3-e04045666a44", "name": "Азбука вкуса, петровка 26"}]}]
+}
+
+{ 
+    "method": "create_goods",
+    "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8",
+                "goods":[{"name":"Кока-кола 0.5", "uuid": "a5bf7d6a-696c-4ed7-9798-04594b8842525",  "barcodes": ["54491472"]},]}]
 }
