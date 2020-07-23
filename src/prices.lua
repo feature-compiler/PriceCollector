@@ -16,8 +16,8 @@ local function init_space()
             -- формат хранимых кортежей
             format = {
                 {'id', 'unsigned'},
-                {'price_value', 'string'},
-                {'date_created','string'},
+                {'price', 'number'},
+                {'datetime','string'},
                 {'approved', 'boolean'},
                 {'product_id','unsigned'},
                 {'shop_id','unsigned'},
@@ -170,10 +170,11 @@ local app = {
         local ok, tuple = self.shop_model.flatten(shop)
 
         if not ok then
+            print("NOT OK!")
             return false
         end
         box.space.shops:replace(tuple)
-        return true
+        return shop
     end,
 
 
@@ -195,9 +196,11 @@ local app = {
 
      add_barcode = function (self, barcode)
         -- barcode [product_id, barcode_value] last is unique
+        print(barcode)
         local ok, tuple = self.barcode_model.flatten(barcode)
 
         if not ok then
+            print("NOT OK")
             return false
         end
         box.space.barcodes:replace(tuple)
@@ -225,6 +228,60 @@ local app = {
                 barcode = self.add_barcode(self, barcode)
             end
         end
+    end,
+
+    add_price = function(self, price)
+        --функция создания цены
+        --берем штрихкод и смотрим есть ли совпадения по карточкам
+        local barcode_exist = box.space.barcodes.index.secondary:get(price.barcode)
+        local barcode
+        local shop
+
+        --если нет - создаем пустую карточку товара
+        if barcode_exist == nil then
+            print("баркода нет в системе - делаем новый")
+            local product = self.add_product(self, {uuid=utils.generate_uuid(), name="Empty"})
+            local barcode_data = {product_id=product.id, barcode=price.barcode}
+            barcode = self.add_barcode(self, barcode_data)
+            print(barcode)
+        else
+            print("баркод в системе - используем")
+            barcode = utils.tuple_to_table(box.space.barcodes:format(), barcode_exist)
+            print(utils.json_response(barcode))
+        end
+
+        --берем uuid шопа и смотрим на его наличие в системе
+        local shop_exist = box.space.shops.index.secondary:get(price.uuid)
+
+        --если его нет - создаем
+        if shop_exist == nil then
+            print(" Шопа нет!")
+            local shop_data = {uuid=utils.generate_uuid(), name="Empty"}
+            shop = self.add_shop(self, shop_data)
+            print(utils.json_response(shop))
+        else
+            print(" Шопа есть!")
+            shop = utils.tuple_to_table(box.space.shops:format(), shop_exist)
+            print(utils.json_response(shop))
+        end
+
+        -- собираем нашего франкенштейна
+        local price_data = {id = 0,
+                            price = price.price,
+                            datetime=price.datetime,
+                            approved=true,
+                            product_id=barcode.product_id,
+                            shop_id=shop.id}
+        print(utils.json_response(price_data))
+        
+        local ok, tuple = self.price_model.flatten(price_data)
+
+        if not ok then
+            return false
+        end
+
+        box.space.prices:replace(tuple)
+        return price_data
     end,
 
     get_shops = function(self)
