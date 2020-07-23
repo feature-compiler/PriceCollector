@@ -126,24 +126,25 @@ function get_all(request, data)
 end
 
 
-for _, good in pairs(test_data.goods) do
-    local product_data = {name=good.name, uuid=good.uuid}
-    local barcodes = good.barcodes
-    good.barcodes = nil
-    prices:add_good(barcodes, product_data)
+for _, price in pairs(test_data.prices) do
+    prices:add_price(price)
+    -- local product_data = {name=good.name, uuid=good.uuid}
+    -- local barcodes = good.barcodes
+    -- good.barcodes = nil
+    -- prices:add_good(barcodes, product_data)
 end
 
-print("PRODUCTS")
-for k, v in pairs(prices:get_products()) do
-    print(json.encode(v))
-end
+-- print("PRODUCTS")
+-- for k, v in pairs(prices:get_products()) do
+--     print(json.encode(v))
+-- end
 
-print("BARCODES")
-for k, v in pairs(prices:get_barcodes()) do
-    print(json.encode(v))
-end
+-- print("BARCODES")
+-- for k, v in pairs(prices:get_barcodes()) do
+--     print(json.encode(v))
+-- end
 
-print("GOOD")
-for k, v in pairs(prices:get_goods()) do
-    print(json.encode(v))
-end
+-- print("GOOD")
+-- for k, v in pairs(prices:get_goods()) do
+--     print(json.encode(v))
+-- end
