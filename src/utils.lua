@@ -46,7 +46,15 @@ end
 local function json_response(lua_object)
     return json.encode(lua_object)
 end
-  
+
+local function generate_uuid()
+    local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
   
 M.read_json = read_json
 M.tables_to_table = tables_to_table
@@ -54,5 +62,6 @@ M.json_response = json_response
 M.complete_table = complete_table
 M.tuple_to_table = tuple_to_table
 M.error_handler = error_handler
+M.generate_uuid = generate_uuid
 
 return M
