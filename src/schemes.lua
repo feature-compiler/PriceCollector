@@ -16,8 +16,8 @@ local schema = {
         name="price_schema",
         fields={
             {name="id", type="long"},
-            {name="price_value", type="float"},
-            {name="date_created", type="string"},
+            {name="price", type="float"},
+            {name="datetime", type="string"},
             {name="approved", type="boolean"},
             {name="product_id", type="long"},
             {name="shop_id", type="long"},
