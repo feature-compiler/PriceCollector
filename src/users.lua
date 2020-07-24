@@ -41,12 +41,14 @@ local function init_space()
         unique = true,
         if_not_exists = if_not_exists,
     })
+    
     users:create_index('secondary', {
         type = "tree",
         parts = {'phone'},
         if_not_exists = if_not_exists,
     })
 
+   
     local tokens = box.schema.space.create(
         'tokens',
         {
@@ -72,7 +74,6 @@ local app = {
     user_model = {};
     token_model = {};
     
-    
     start = function (self)
 
         init_space()
@@ -80,7 +81,6 @@ local app = {
         local ok_u, user = avro.create(schema.user)
         local ok_t, token = avro.create(schema.token)
         
-
         if ok_u and ok_t then
             local ok_cu, compiled_user = avro.compile(user)
             local ok_ct, compiled_token = avro.compile(token)
@@ -97,12 +97,14 @@ local app = {
         else
             log.info("Schema creation failed")
         end
+        
         return false
     end,
 
-    add_user = function (self, user)
-        user.id = box.sequence.users_id:next()
 
+    add_user = function (self, user)
+        
+        user.id = box.sequence.users_id:next()
         user.salt = 'nil'
         user.shadow = 'nil'
         user.otp_time_created = 0
@@ -110,22 +112,31 @@ local app = {
         local ok, tuple = self.user_model.flatten(user)
 
         if not ok then
-            error("Invalid tuple")
+            error("Invalid data")
         end
+        
         box.space.users:replace(tuple)
+        
         return user
     end,
 
+
     get_user = function (self, user_id)
-        local user_tuple = box.space.users:get(user_id)
-        return user_tuple
+        
+        local user = box.space.users:get(user_id)
+        
+        return user
     end,
 
+
     get_users = function (self)
+        
         return utils.tables_to_table(box.space.users, self.user_model)
     end,
 
+
     set_otp = function (self, phone)
+        
         -- get user by phone or error
         local user = box.space.users.index.secondary:get(phone)
         if user == nil then
@@ -149,7 +160,9 @@ local app = {
         end
     end,
 
+
     check_otp = function(self, phone, password)
+        
         local user_exist = box.space.users.index.secondary:get(phone)
         
         if user_exist == nil then
@@ -161,16 +174,20 @@ local app = {
         -- and check lifetime
         if self.check_password(self, user, password) then
             local token = self.add_token(self, user.id)
+            
             return token
         else
             error("Wrong password")
         end
     end,
 
+
     add_password = function (self, user_id)
+        
         local user_exist = box.space.users:get(user_id)
+        
         if user_exist == nil then
-            return false
+            error("User does not exist")
         end
 
         local pass = auth.generate_password(6)
@@ -189,12 +206,16 @@ local app = {
                                     }
 
         box.space.users:replace(tuple)
+        
         return pass
     end,
 
+
     check_password = function(self, user, password)
+        
         return auth.check_password(user.shadow, user.salt, password)
     end,
+
 
     add_token = function(self, user_id)
 
@@ -210,6 +231,7 @@ local app = {
 
         local tuple = box.tuple.new{user_id, token}
         box.space.tokens:replace(tuple)
+        
         return token
     end,
 
@@ -220,15 +242,17 @@ local app = {
         local validate = true
         local decoded, err = jwt.decode(incoming_token, SECRET_KEY, validate)
 
-        if not err == nil then
-            return nil
-        end
+        -- if not err == nil then
+        --     error("")
+        -- end
         
         return decoded
 
     end,
 
+
     get_tokens = function (self)
+        
         return utils.tables_to_table(box.space.tokens, self.token_model)
     end,
 

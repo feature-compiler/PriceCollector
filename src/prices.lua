@@ -9,7 +9,6 @@ local function init_space()
 
     local if_not_exists = true
 
-
     local prices = box.schema.space.create(
         'prices',
         {
@@ -36,6 +35,7 @@ local function init_space()
         unique = true,
         if_not_exists = if_not_exists,
     })
+
 
     local products = box.schema.space.create(
         'products',
@@ -102,6 +102,7 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
+ 
     local barcodes = box.schema.space.create(
         'barcodes',
         {
@@ -140,7 +141,6 @@ local app = {
         local ok_s, shop = avro.create(schema.shop)
         local ok_b, barcode = avro.create(schema.barcode)
 
-
         if ok_p and ok_prod and ok_s and ok_b then
             local ok_cp, compiled_price = avro.compile(price)
             local ok_cprod, compiled_product = avro.compile(product)
@@ -161,51 +161,52 @@ local app = {
         else
             log.info("Schema creation failed")
         end
+        
         return false
-
     end,
 
+
     add_shop = function (self, shop)
+        
         shop.id = box.sequence.shops_id:next()
         local ok, tuple = self.shop_model.flatten(shop)
 
         if not ok then
-            print("NOT OK!")
-            return false
+            error("Invalid data")
         end
         box.space.shops:replace(tuple)
+
         return shop
     end,
 
 
-
     add_product = function (self, product)
-        -- product [ uuid: , name: ] (uuid is unique)
-        print(product)
+        
         product.id = box.sequence.products_id:next()
 
         local ok, tuple = self.product_model.flatten(product)
 
         if not ok then
-            return false
+            error("Invalid data")
         end
 
         box.space.products:replace(tuple)
+
         return product
     end,
 
+
      add_barcode = function (self, barcode)
-        -- barcode [product_id, barcode_value] last is unique
-        print(barcode)
         local ok, tuple = self.barcode_model.flatten(barcode)
 
         if not ok then
-            print("NOT OK")
-            return false
+            error("Invalid data")
         end
         box.space.barcodes:replace(tuple)
+        
         return barcode
     end,
+
 
     add_good = function (self, barcodes, product)
 
@@ -217,7 +218,6 @@ local app = {
             product = product_exist
         end
 
-        -- barcodes is {'123', '345', '567'}
         for _, barcode_value in pairs(barcodes) do
             --check existing barcode with same barcode value
             local barcode = {product_id=product.id, barcode=barcode_value}
@@ -230,7 +230,9 @@ local app = {
         end
     end,
 
+
     add_price = function(self, price)
+        
         --функция создания цены
         --берем штрихкод и смотрим есть ли совпадения по карточкам
         local barcode_exist = box.space.barcodes.index.secondary:get(price.barcode)
@@ -239,15 +241,11 @@ local app = {
 
         --если нет - создаем пустую карточку товара
         if barcode_exist == nil then
-            print("баркода нет в системе - делаем новый")
             local product = self.add_product(self, {uuid=utils.generate_uuid(), name="Empty"})
             local barcode_data = {product_id=product.id, barcode=price.barcode}
             barcode = self.add_barcode(self, barcode_data)
-            print(barcode)
         else
-            print("баркод в системе - используем")
             barcode = utils.tuple_to_table(box.space.barcodes:format(), barcode_exist)
-            print(utils.json_response(barcode))
         end
 
         --берем uuid шопа и смотрим на его наличие в системе
@@ -255,14 +253,10 @@ local app = {
 
         --если его нет - создаем
         if shop_exist == nil then
-            print(" Шопа нет!")
             local shop_data = {uuid=utils.generate_uuid(), name="Empty"}
             shop = self.add_shop(self, shop_data)
-            print(utils.json_response(shop))
         else
-            print(" Шопа есть!")
             shop = utils.tuple_to_table(box.space.shops:format(), shop_exist)
-            print(utils.json_response(shop))
         end
 
         -- собираем нашего франкенштейна
@@ -272,31 +266,39 @@ local app = {
                             approved=true,
                             product_id=barcode.product_id,
                             shop_id=shop.id}
-        print(utils.json_response(price_data))
         
         local ok, tuple = self.price_model.flatten(price_data)
 
         if not ok then
-            return false
+            error("Invalid data")
         end
 
         box.space.prices:replace(tuple)
+        
         return price_data
     end,
 
+
     get_shops = function(self)
+        
         return utils.tables_to_table(box.space.shops, self.shop_model)
     end,
 
+
     get_products = function(self)
+        
         return utils.tables_to_table(box.space.products, self.product_model)
     end,
 
+
     get_barcodes = function(self)
+        
         return utils.tables_to_table(box.space.barcodes, self.barcode_model)
     end,
 
+
     get_goods = function(self)
+        
         local goods_ =  {}
         for _, price in box.space.prices:pairs() do
             local ok, unflatted = self.price_model.unflatten(price)
@@ -305,6 +307,7 @@ local app = {
             -- end
             table.insert(goods_, unflatted)
         end
+        
         return goods_
     end,
 
