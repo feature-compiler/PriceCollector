@@ -5,7 +5,9 @@ local digest = require('digest')
 
 local SALT_LENGTH = 16
 
+
 local function generate_salt(length)
+    
     return digest.base64_encode(
         digest.urandom(length - bit.rshift(length, 2)),
         {nopad=true, nowrap=true}
@@ -13,20 +15,26 @@ local function generate_salt(length)
 end
 
 local function password_digest(password, salt)
+    
     checks('string', 'string')
+    
     return digest.pbkdf2(password, salt)
 end
 
 local function generate_password(length)
+    
     math.randomseed(os.clock()*100000000000)
 	local res = ""
 	for i = 1, length do
 		res = res .. math.random(1, 9)
 	end
-	return res
+    
+    return res
 end
 
+
 local function create_password(password)
+    
     checks('string')
 
     local salt = generate_salt(SALT_LENGTH)
@@ -36,7 +44,9 @@ local function create_password(password)
     return shadow, salt
 end
 
+
 local function check_password(shadow, salt, password)
+    
     return shadow == password_digest(password, salt)
 end
 

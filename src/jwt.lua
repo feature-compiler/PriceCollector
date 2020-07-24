@@ -8,8 +8,10 @@ local fiber  = require('fiber')
 -- https://github.com/tarantool/tarantool/issues/2478
 
 local function trim_newline(str)
+    
     return string.gsub(str, '\n', '')
 end
+
 
 local alg_sign = {
     ['none']  = function(data, key) return '' end,
@@ -19,11 +21,15 @@ local alg_sign = {
     ['MD5'] = function(data, key) return crypto.hmac.md5(key, data) end,
 }
 
+
 local function sigcheck(alg, data, signature, key)
+    
     return signature == alg_sign[alg](data, key)
 end
 
+
 local function b64_encode(input)
+    
     local result = digest.base64_encode(input)
 
     result = result:gsub('+', '-')
@@ -36,6 +42,7 @@ local function b64_encode(input)
 end
 
 local function b64_decode(input)
+    
     local reminder = #input % 4
 
     if reminder > 0 then
@@ -49,7 +56,9 @@ local function b64_decode(input)
     return digest.base64_decode(input)
 end
 
+
 local function tokenize(str, div, len)
+    
     local result, pos = {}, 0
 
     for st, sp in function() return str:find(div, pos, true) end do
@@ -69,7 +78,9 @@ local function tokenize(str, div, len)
     return result
 end
 
+
 local function encode(data, key, alg)
+    
     if type(data) ~= 'table' then
         error('Data must be table')
     end
@@ -99,7 +110,9 @@ local function encode(data, key, alg)
     return table.concat(segments, '.')
 end
 
+
 local function decode(data, key, verify, callbacks)
+    
     if callbacks == nil then
         callbacks = {
             ['nbf'] = function(value) return fiber.time() > value end,
