@@ -2,6 +2,7 @@ local users = require('users')
 local prices = require('prices')
 local json = require('json')
 local test_data = require('data')
+local smsc = require("smsc")
 
 box.cfg{listen=3301}
 
@@ -139,3 +140,9 @@ function get_all(request, data)
         tokens=users:get_tokens(),
     }
 end
+
+
+-- local phone = "89156389216"
+-- local message = "test message"
+-- local response = smsc.send_message(phone, message)
+-- print(response.status)
