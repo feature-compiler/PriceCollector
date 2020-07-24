@@ -106,9 +106,13 @@ function create_shops(request, data)
     }
 end
 
-function create_users(request, token, users)
+function create_users(request, data)
+    local result
+    for _, user in pairs(data.users) do
+        result = users:add_user(user)
+    end
     return {
-        result=nil
+        result=result
     }
 end
 
