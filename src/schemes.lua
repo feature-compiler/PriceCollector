@@ -9,6 +9,7 @@ local schema = {
             {name="is_super", type="boolean"},
             {name="salt", type="string"},
             {name="shadow", type="string"},
+            {name="otp_time_created", type="long"},
         }
     },
     price = {
