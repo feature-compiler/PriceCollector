@@ -11,3 +11,9 @@
     "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8",
                 "goods":[{"name":"Кока-кола 0.5", "uuid": "a5bf7d6a-696c-4ed7-9798-04594b8842525",  "barcodes": ["54491472"]},]}]
 }
+
+{ 
+    "method": "send_goods",
+    "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8",
+                "goods":[{"price":10.2, "uuid": "a5bf7d6a-696c-4ed7-9798-04594b8842525",  "barcode": "54491472", "datetime": "2012-04-23T18:25:43.511Z"},]}]
+}

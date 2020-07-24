@@ -20,10 +20,12 @@ local function tuple_to_table(format, tuple)
 end
 
 
-local function tables_to_table(box_space)
+local function tables_to_table(box_space, model)
+
     local table_ = {}
-    for key, obj in box_space:pairs() do
-        table.insert(table_, tuple_to_table(box_space:format(), obj))
+    for _, obj in box_space:pairs() do
+        local ok, unflatten_obj = model:unflatten(obj)
+        table.insert(table_, unflatten_obj)
     end
     return table_
 end

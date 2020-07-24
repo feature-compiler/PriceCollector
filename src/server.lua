@@ -55,7 +55,14 @@ function goods_info(request, token, barcode, shop_uuid)
     }
 end
 
-function send_goods(request, token, goods)
+function send_goods(request, data)
+    local status, result = pcall(function () users:decode_token(data.token) end)
+
+    if status then
+        for _, good in pairs(data.goods) do
+            prices:add_price(good)
+        end
+    end
     return {
         result=nil
     }
@@ -124,27 +131,3 @@ function get_all(request, data)
         barcodes=prices:get_barcodes(),
     }
 end
-
-
-for _, price in pairs(test_data.prices) do
-    prices:add_price(price)
-    -- local product_data = {name=good.name, uuid=good.uuid}
-    -- local barcodes = good.barcodes
-    -- good.barcodes = nil
-    -- prices:add_good(barcodes, product_data)
-end
-
--- print("PRODUCTS")
--- for k, v in pairs(prices:get_products()) do
---     print(json.encode(v))
--- end
-
--- print("BARCODES")
--- for k, v in pairs(prices:get_barcodes()) do
---     print(json.encode(v))
--- end
-
--- print("GOOD")
--- for k, v in pairs(prices:get_goods()) do
---     print(json.encode(v))
--- end

@@ -285,25 +285,25 @@ local app = {
     end,
 
     get_shops = function(self)
-        return utils.tables_to_table(box.space.shops)
+        return utils.tables_to_table(box.space.shops, self.shop_model)
     end,
 
     get_products = function(self)
-        return utils.tables_to_table(box.space.products)
+        return utils.tables_to_table(box.space.products, self.product_model)
     end,
 
     get_barcodes = function(self)
-        return utils.tables_to_table(box.space.barcodes)
+        return utils.tables_to_table(box.space.barcodes, self.barcode_model)
     end,
 
     get_goods = function(self)
         local goods_ =  {}
-        for key, price in box.space.prices:pairs() do
-            local price_ = utils.tuple_to_table(box.space.shops:format(), price)
-            if price_.approved == true then
+        for _, price in box.space.prices:pairs() do
+            local ok, unflatted = self.price_model:unflatten(price)
+            if unflatted.approved == true then
                 --append price_ to goods
             end
-            table.insert(goods_, price_)
+            table.insert(goods_, unflatted)
         end
         return goods_
     end,

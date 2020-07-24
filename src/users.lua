@@ -115,7 +115,7 @@ local app = {
     end,
 
     get_users = function (self)
-        return utils.tables_to_table(box.space.users)
+        return utils.tables_to_table(box.space.users, self.user_model)
     end,
 
 
