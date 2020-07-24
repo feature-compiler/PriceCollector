@@ -299,10 +299,10 @@ local app = {
     get_goods = function(self)
         local goods_ =  {}
         for _, price in box.space.prices:pairs() do
-            local ok, unflatted = self.price_model:unflatten(price)
-            if unflatted.approved == true then
-                --append price_ to goods
-            end
+            local ok, unflatted = self.price_model.unflatten(price)
+            -- if unflatted.approved == true then
+            --     --append price_ to goods
+            -- end
             table.insert(goods_, unflatted)
         end
         return goods_

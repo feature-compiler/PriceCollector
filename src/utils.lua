@@ -24,7 +24,7 @@ local function tables_to_table(box_space, model)
 
     local table_ = {}
     for _, obj in box_space:pairs() do
-        local ok, unflatten_obj = model:unflatten(obj)
+        local ok, unflatten_obj = model.unflatten(obj)
         table.insert(table_, unflatten_obj)
     end
     return table_
