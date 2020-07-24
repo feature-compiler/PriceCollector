@@ -6,6 +6,7 @@ local jwt = require("jwt")
 local utils = require('utils')
 local checks = require('checks')
 local json = require('json')
+local smsc = require("smsc")
 
 local app_name = 'users'
 
@@ -138,9 +139,14 @@ local app = {
         end
         
         local password = self.add_password(self, user.id)
-        -- send message with pass to phone
-        -- ...
-        return password
+        local message = password
+        local response = smsc.send_message(phone, message)
+
+        if response.status == 200 then
+            return "One-time-password sent to your phone"
+        else
+            return "Something wrong"
+        end
     end,
 
     check_otp = function(self, phone, password)

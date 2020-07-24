@@ -2,7 +2,7 @@ local users = require('users')
 local prices = require('prices')
 local json = require('json')
 local test_data = require('data')
-local smsc = require("smsc")
+
 
 box.cfg{listen=3301}
 
