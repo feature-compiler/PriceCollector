@@ -30,6 +30,15 @@ local function tables_to_table(box_space, model)
     return table_
 end
 
+local function datetime_diff(date)
+    local now = os.time()
+
+    --local some_date = os.time{year=2020, month=7, day=24, hour=16, min=50, sec=1}
+
+    local diff = os.date("*t", os.difftime(now, date))
+    -- diff.min
+    return diff
+end
 
 local function error_handler (err)
     return err
