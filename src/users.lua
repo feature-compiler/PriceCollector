@@ -24,6 +24,7 @@ local function init_space()
                 {'is_super', 'boolean'},
                 {'salt', 'string'},
                 {'shadow', 'string'},
+                {'otp_time_created', 'unsigned'}
             },
 
             if_not_exists = if_not_exists,
@@ -100,10 +101,15 @@ local app = {
 
     add_user = function (self, user)
         user.id = box.sequence.users_id:next()
+
+        user.salt = 'nil'
+        user.shadow = 'nil'
+        user.otp_time_created = 0
+
         local ok, tuple = self.user_model.flatten(user)
 
         if not ok then
-            return false
+            error("Invalid tuple")
         end
         box.space.users:replace(tuple)
         return user
@@ -118,6 +124,42 @@ local app = {
         return utils.tables_to_table(box.space.users, self.user_model)
     end,
 
+    set_otp = function (self, phone)
+        -- get user by phone or error
+        local user = box.space.users.index.secondary:get(phone)
+        if user == nil then
+            error("No user with such a phone number!")
+        end
+        
+        --check user token
+        local token = box.space.tokens:get(user.id)
+        if token == nil then
+            error("This user already has a token!")
+        end
+        
+        local password = self.add_password(self, user.id)
+        -- send message with pass to phone
+        -- ...
+        return password
+    end,
+
+    check_otp = function(self, phone, password)
+        local user_exist = box.space.users.index.secondary:get(phone)
+        
+        if user_exist == nil then
+            error("No user with such a phone number!")
+        end
+
+        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+
+        -- and check lifetime
+        if self.check_password(self, user, password) then
+            local token = self.add_token(self, user.id)
+            return token
+        else
+            error("Wrong password")
+        end
+    end,
 
     add_password = function (self, user_id)
         local user_exist = box.space.users:get(user_id)
@@ -126,6 +168,7 @@ local app = {
         end
 
         local pass = auth.generate_password(6)
+        local otp_time_created = os.time()
 
         local shadow, salt = auth.create_password(pass)
         local user = utils.tuple_to_table(box.space.users:format(), user_exist)
@@ -135,28 +178,19 @@ local app = {
                                     user.phone,
                                     user.is_super,
                                     salt,
-                                    shadow }
+                                    shadow,
+                                    otp_time_created,
+                                    }
 
         box.space.users:replace(tuple)
-        return true
+        return pass
     end,
 
-    check_password = function(self, phone, password)
-        local user_exist = box.space.users.index.secondary:get(phone)
-        if user_exist == nil then
-            return false
-        end
-
-        local user = utils.tuple_to_table(box.space.users:format(), user_exist)
+    check_password = function(self, user, password)
         return auth.check_password(user.shadow, user.salt, password)
     end,
 
     add_token = function(self, user_id)
-        --check existing data
-        local user_exist = box.space.users:get(user_id)
-        if user_exist == nil then
-            return false
-        end
 
         local SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
         local alg = "HS256"
@@ -165,7 +199,7 @@ local app = {
         local token, err = jwt.encode(payload, SECRET_KEY, alg)
 
         if not err == nil then
-            return false
+            error("Invalid data")
         end
 
         local tuple = box.tuple.new{user_id, token}
