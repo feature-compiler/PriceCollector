@@ -133,7 +133,7 @@ local app = {
         
         --check user token
         local token = box.space.tokens:get(user.id)
-        if token == nil then
+        if token ~= nil then
             error("This user already has a token!")
         end
         
@@ -220,7 +220,11 @@ local app = {
         
         return decoded
 
-    end
+    end,
+
+    get_tokens = function (self)
+        return utils.tables_to_table(box.space.tokens, self.token_model)
+    end,
 
 }
 

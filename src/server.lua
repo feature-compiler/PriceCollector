@@ -38,14 +38,17 @@ function check_token(request, data)
     }
 end
 
-function otp_request(request, phone)
-    local body = {}
-    return body
+function otp_request(request, data)
+    local result = users:set_otp(data.phone)
+    return {
+        result = result
+    }
 end
 
-function otp_check(request, phone, token)
+function otp_check(request, data)
+    local result = users:check_otp(data.phone, data.password)
     return {
-        result=nil
+        result = result
     }
 end
 
@@ -129,5 +132,6 @@ function get_all(request, data)
         products=prices:get_products(),
         goods=prices:get_goods(),
         barcodes=prices:get_barcodes(),
+        tokens=users:get_tokens(),
     }
 end
