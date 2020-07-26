@@ -48,10 +48,17 @@ function otp_check(request, data)
 end
 
 
-function goods_info(request, token, barcode, shop_uuid)
+function goods_info(request, data)
+    
+    local accepted, result = pcall(users.decode_token, users, data.token)
+    
+    if accepted then
+        accepted, result = pcall(prices.get_good, prices, data.barcode, data.shopuuid)
+    end
     
     return {
-        result=nil
+        accepted=accepted,
+        result=result
     }
 end
 
@@ -174,6 +181,3 @@ print(json.encode(prices:get_shops()))
 print(json.encode(prices:get_products()))
 print(json.encode(prices:get_goods()))
 print(json.encode(prices:get_barcodes()))
-
-
-print(json.encode(prices:get_good("54491472", "250")))
