@@ -36,7 +36,6 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
-
     local products = box.schema.space.create(
         'products',
         {
@@ -76,8 +75,8 @@ local function init_space()
             -- формат хранимых кортежей
             format = {
                 {'id', 'unsigned'},
-                {'name','string'},
                 {'uuid','string'},
+                {'name','string'},     
             },
 
             if_not_exists = if_not_exists,
@@ -98,7 +97,6 @@ local function init_space()
     shops:create_index('secondary', {
         type = "tree",
         parts = {'uuid'},
-        unique = true,
         if_not_exists = if_not_exists,
     })
 
@@ -253,6 +251,7 @@ local app = {
 
         --если его нет - создаем
         if shop_exist == nil then
+            print('Шопа нет!')
             local shop_data = {uuid=utils.generate_uuid(), name="Empty"}
             shop = self.add_shop(self, shop_data)
         else
@@ -310,6 +309,28 @@ local app = {
         
         return goods_
     end,
+
+    
+    -- get_good = function(self, barcode, shop_uuid)
+
+    --     local product_barcodes = box.space.barcodes.index.secondary:select(barcode)
+    --     if table.getn(product_barcodes) == 0 then
+    --         error("Barcode not found")
+    --     end
+
+    --     local shop =  box.space.shops.index.secondary:get(shop_uuid)
+    --     print(shop)
+    --     -- if shop == nil then
+    --     --     error("Shop not found")
+    --     -- end
+
+    --     local same_prices = {}
+    --     -- for _, price in pairs(box.space.prices.index.shops_id:select(shop.id)) do
+    --     --     table.insert(same_prices, price)
+    --     -- end
+    --     -- return same_prices
+    --     return shop
+    -- end,
 
 }
 
