@@ -36,6 +36,13 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
+    prices:create_index('product', {
+        type = "tree",
+        parts = {'product_id'},
+        unique=false,
+        if_not_exists = if_not_exists,
+    })
+
     local products = box.schema.space.create(
         'products',
         {
@@ -230,6 +237,8 @@ local app = {
 
 
     add_price = function(self, price)
+
+        price.id = box.sequence.prices_id:next()
         
         --функция создания цены
         --берем штрихкод и смотрим есть ли совпадения по карточкам
@@ -259,7 +268,7 @@ local app = {
         end
 
         -- собираем нашего франкенштейна
-        local price_data = {id = 0,
+        local price_data = {id = price.id,
                             price = price.price,
                             datetime=price.datetime,
                             approved=true,
@@ -311,26 +320,55 @@ local app = {
     end,
 
     
-    -- get_good = function(self, barcode, shop_uuid)
+    get_good = function(self, barcode_value, shop_uuid)
 
-    --     local product_barcodes = box.space.barcodes.index.secondary:select(barcode)
-    --     if table.getn(product_barcodes) == 0 then
-    --         error("Barcode not found")
-    --     end
+        local barcode = box.space.barcodes.index.secondary:get(barcode_value)
+        if barcode == nil then
+            error("Barcode not found")
+        end
 
-    --     local shop =  box.space.shops.index.secondary:get(shop_uuid)
-    --     print(shop)
-    --     -- if shop == nil then
-    --     --     error("Shop not found")
-    --     -- end
+        local shop = box.space.shops.index.secondary:get(shop_uuid)
+        if shop == nil then
+            error("Shop not found")
+        end
 
-    --     local same_prices = {}
-    --     -- for _, price in pairs(box.space.prices.index.shops_id:select(shop.id)) do
-    --     --     table.insert(same_prices, price)
-    --     -- end
-    --     -- return same_prices
-    --     return shop
-    -- end,
+        local product = box.space.products:get(barcode.product_id)
+        local prices_ = box.space.prices.index.product:select(product.id)
+        
+        local shop_prices = {}
+        --поиск цен только в заданном магазине
+        for _, price in pairs(prices_) do
+            local ok, table_price = self.price_model.unflatten(price)
+            if (table_price.shop_id == shop.id) and (table_price.approved == true) then
+                table.insert(shop_prices, table_price)
+            end
+        end
+
+        --устанавливаем цену nil для данного магазина если цен не найдено
+        if table.getn(shop_prices) == nil then
+
+            local price_data = {id=box.sequence.prices_id:next(),
+                                price=nil,
+                                datetime=tostring(os.date()),
+                                approved=true,
+                                product_id=barcode.product_id,
+                                shop_id=shop.id}
+
+            local ok, tuple = self.price_model.flatten(price_data)
+
+            if not ok then
+                error("Invalid data")
+            end
+
+            box.space.prices:replace(tuple)
+
+            return {name=product.name, price=price_data.price}
+        end
+
+        local last_price = shop_prices[#shop_prices]
+
+        return {name=product.name, price=last_price.price}
+    end,
 
 }
 
