@@ -12,6 +12,7 @@ prices:start()
 -- API methods
 
 function check_token(request, data)
+    
     local accepted, result = pcall(users.decode_token, users, data.token)
     
     if accepted then
@@ -26,6 +27,7 @@ end
 
 
 function otp_request(request, data)
+    
     local accepted, result = pcall(users.set_otp. users, data.phone)
     
     return {
@@ -36,6 +38,7 @@ end
 
 
 function otp_check(request, data)
+    
     local accepted, result = pcall(users.check_otp, users, data.phone, data.password)
     
     return {
@@ -54,6 +57,7 @@ end
 
 
 function send_goods(request, data)
+    
     local accepted, result = pcall(users.decode_token, users, data.token)
 
     if accepted then
@@ -70,6 +74,7 @@ end
 
 
 function create_goods(request, data)
+    
     local accepted, result = pcall(users.decode_token, users, data.token)
 
     if accepted then
@@ -88,6 +93,7 @@ end
 
 
 function create_shops(request, data)
+    
     local accepted, result = pcall(users.decode_token, users, data.token)
     
     if accepted then
@@ -104,6 +110,7 @@ end
 
 
 function create_users(request, data)
+    
     local accepted, result
     
     for _, user in pairs(data.users) do
@@ -145,3 +152,28 @@ function get_all(request, data)
         tokens=users:get_tokens(),
     }
 end
+
+
+-- for _, shop in pairs(test_data.shops) do
+--     prices:add_shop(shop)
+-- end
+
+
+-- for _, good in pairs(test_data.goods) do
+--     local product_data = {name=good.name, uuid=good.uuid}
+--     local barcodes = good.barcodes
+--     prices:add_good(barcodes, product_data)
+-- end
+
+
+-- for _, price in pairs(test_data.prices) do
+--     prices:add_price(price)
+-- end
+
+print(json.encode(prices:get_shops()))
+print(json.encode(prices:get_products()))
+print(json.encode(prices:get_goods()))
+print(json.encode(prices:get_barcodes()))
+
+
+print(json.encode(prices:get_good("54491472", "250")))

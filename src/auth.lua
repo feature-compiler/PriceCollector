@@ -14,12 +14,14 @@ local function generate_salt(length)
     ):sub(1, length)
 end
 
+
 local function password_digest(password, salt)
     
     checks('string', 'string')
     
     return digest.pbkdf2(password, salt)
 end
+
 
 local function generate_password(length)
     
