@@ -345,24 +345,24 @@ local app = {
         end
 
         --устанавливаем цену nil для данного магазина если цен не найдено
-        if table.getn(shop_prices) == nil then
+        if table.getn(shop_prices) == 0 then
 
-            local price_data = {id=box.sequence.prices_id:next(),
-                                price=nil,
-                                datetime=tostring(os.date()),
-                                approved=true,
-                                product_id=barcode.product_id,
-                                shop_id=shop.id}
+            -- local price_data = {id=box.sequence.prices_id:next(),
+            --                     price=nil,
+            --                     datetime=tostring(os.date()),
+            --                     approved=true,
+            --                     product_id=barcode.product_id,
+            --                     shop_id=shop.id}
 
-            local ok, tuple = self.price_model.flatten(price_data)
+            -- local ok, tuple = self.price_model.flatten(price_data)
 
-            if not ok then
-                error("Invalid data")
-            end
+            -- if not ok then
+            --     error("Invalid data")
+            -- end
 
-            box.space.prices:replace(tuple)
+            -- box.space.prices:replace(tuple)
 
-            return {name=product.name, price=price_data.price}
+            return {name=product.name, price=0}
         end
 
         local last_price = shop_prices[#shop_prices]
