@@ -221,7 +221,7 @@ local app = {
 
         local SECRET_KEY = os.getenv("SECRET_KEY_AUTH")
         local alg = "HS256"
-        local payload = {user_id = user_id, iss = "auth"}
+        local payload = {user_id = user_id, valid = true}
 
         local token, err = jwt.encode(payload, SECRET_KEY, alg)
 
@@ -242,9 +242,9 @@ local app = {
         local validate = true
         local decoded, err = jwt.decode(incoming_token, SECRET_KEY, validate)
 
-        -- if not err == nil then
-        --     error("")
-        -- end
+        if decoded.valid ~= true then
+            error("Invalid token")
+        end
         
         return decoded
 

@@ -11,9 +11,9 @@ prices:start()
 
 -- API methods
 
-function check_token(request, data)
+function CheckToken(request, data)
     
-    local accepted, result = pcall(users.decode_token, users, data.token)
+    local accepted, result = pcall(users.decode_token, users, data.Token)
     
     if accepted then
         accepted, result = pcall(prices.get_shops, prices)
