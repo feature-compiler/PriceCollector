@@ -23,4 +23,11 @@
 {
   "method": "OTPCheck",
   "params": [{"phone":"89156389216", "password":"123456"}]
+
+}
+
+{
+  "method": "CreateGoods",
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8", "goods": [{"barcode": "54491472", "price": 80.75, "datetime":"2012-04-23T18:25:43.511Z", "uuid":"a5bf7d6a-696c-4ed7-9798-04594b88dec6"}]}]
+
 }
