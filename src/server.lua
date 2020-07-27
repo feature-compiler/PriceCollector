@@ -80,7 +80,7 @@ function SendGoods(request, data)
 end
 
 
-function create_goods(request, data)
+function CreateGoods(request, data)
     
     local accepted, result = pcall(users.decode_token, users, data.token)
 
