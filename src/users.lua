@@ -141,6 +141,7 @@ local app = {
         
         -- get user by phone or error
         local user = box.space.users.index.secondary:get(phone)
+        print(json.encode(user))
         if user == nil then
             error("No user with such a phone number!")
         end
@@ -201,7 +202,6 @@ local app = {
         local tuple = box.tuple.new{user_id,
                                     user.username,
                                     user.phone,
-                                    user.is_super,
                                     salt,
                                     shadow,
                                     otp_time_created,

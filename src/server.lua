@@ -26,9 +26,9 @@ function CheckToken(request, data)
 end
 
 
-function otp_request(request, data)
+function OTPRequest(request, data)
     
-    local accepted, result = pcall(users.set_otp. users, data.phone)
+    local accepted, result = pcall(users.set_otp, users, data.phone)
     
     return {
         accepted = accepted,
@@ -37,7 +37,7 @@ function otp_request(request, data)
 end
 
 
-function otp_check(request, data)
+function OTPCheck(request, data)
     
     local accepted, result = pcall(users.check_otp, users, data.phone, data.password)
     

@@ -1,16 +1,26 @@
 
 { 
     "method": "CheckToken",
-    "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8"}]
+    "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8"}]
 }
 
 {
   "method": "CreateUsers",
-  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8", "users": [{"username": "Арнольд", "phone": "89247247245"},{"username": "Петя","phone": "89247247246"}]}]
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8", "users": [{"username": "Игорь", "phone": "89156389216"},{"username": "Петя","phone": "89247247246"}]}]
 
 }
 
 {
   "method": "GetAll",
   "params": [{"Nothing":"All"}]
+}
+
+{
+  "method": "OTPRequest",
+  "params": [{"phone":"89156389216"}]
+}
+
+{
+  "method": "OTPCheck",
+  "params": [{"phone":"89156389216", "password":"123456"}]
 }
