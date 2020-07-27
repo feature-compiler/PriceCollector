@@ -3,3 +3,9 @@
     "method": "CheckToken",
     "params": [{"Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJpc3MiOiJhdXRoIn0.yocAqWtbV9TLM1uCDYY4SJjSEHoeKKEFJbegduHaFB8"}]
 }
+
+{
+  "method": "CreateUsers",
+  "params": [{"Token": "3uLEGW21bE2Vfs2VYIPUMA", "Users": [{"Name": "Арнольд", "Phone": "+79247247245"},{"Name": "Петя","Phone": "+79247247246"},]}]
+
+}

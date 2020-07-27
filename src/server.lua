@@ -116,13 +116,14 @@ function create_shops(request, data)
 end
 
 
-function create_users(request, data)
+function CreateUsers(request, data)
     
-    local accepted, result
+    local accepted, result = pcall(users.decode_token, users, data.Token)
     
-    for _, user in pairs(data.users) do
-        accepted, result = pcall(users.add_user, users, user)
-    
+    if accepted then
+        for _, user in pairs(data.Users) do
+            accepted, result = pcall(users.add_user, users, user)
+        end
     end
     
     return {
