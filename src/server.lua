@@ -13,7 +13,7 @@ prices:start()
 
 function CheckToken(request, data)
     
-    local accepted, result = pcall(users.decode_token, users, data.Token)
+    local accepted, result = pcall(users.decode_token, users, data.token)
     
     if accepted then
         accepted, result = pcall(prices.get_shops, prices)
@@ -118,10 +118,10 @@ end
 
 function CreateUsers(request, data)
     
-    local accepted, result = pcall(users.decode_token, users, data.Token)
+    local accepted, result = pcall(users.decode_token, users, data.token)
     
     if accepted then
-        for _, user in pairs(data.Users) do
+        for _, user in pairs(data.users) do
             accepted, result = pcall(users.add_user, users, user)
         end
     end
@@ -149,8 +149,8 @@ function accept_price_history(request, price_history)
 end
 
 
-function get_all(request, data)
-
+function GetAll(request, data)
+    --отладочная функция
     return {
         users=users:get_users(),
         shops=prices:get_shops(),
@@ -177,8 +177,14 @@ end
 -- for _, price in pairs(test_data.prices) do
 --     prices:add_price(price)
 -- end
+for _, user in pairs(test_data.users) do
+    users:add_user(user)
+end
+
+users:add_token(1)
 
 print(json.encode(prices:get_shops()))
 print(json.encode(prices:get_products()))
 print(json.encode(prices:get_goods()))
 print(json.encode(prices:get_barcodes()))
+

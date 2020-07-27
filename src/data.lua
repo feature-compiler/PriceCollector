@@ -8,7 +8,7 @@ local prices = {}
 
 
 -- users
-local user_1 = {username= "admin", is_super= true, phone="+79107138699"}
+local user_1 = {username= "admin", phone="89107138699"}
 users.user_1 = user_1
 
 --shops

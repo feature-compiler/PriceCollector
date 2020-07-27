@@ -22,7 +22,6 @@ local function init_space()
                 {'id', 'unsigned'},
                 {'username', 'string'},
                 {'phone','string'},
-                {'is_super', 'boolean'},
                 {'salt', 'string'},
                 {'shadow', 'string'},
                 {'otp_time_created', 'unsigned'}
@@ -105,9 +104,12 @@ local app = {
     add_user = function (self, user)
         
         user.id = box.sequence.users_id:next()
+        
         user.salt = 'nil'
         user.shadow = 'nil'
         user.otp_time_created = 0
+
+        print(json.encode(user))
 
         local ok, tuple = self.user_model.flatten(user)
 
