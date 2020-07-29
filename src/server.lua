@@ -185,6 +185,7 @@ print(json.encode(prices:get_goods()))
 print(json.encode(prices:get_barcodes()))
 print(json.encode(prices:get_products()))
 
+print(json.encode(prices:get_histories()))
 print(json.encode(prices:get_price_history()))
 
 

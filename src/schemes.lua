@@ -21,6 +21,7 @@ local schema = {
             {name="approved", type="boolean"},
             {name="product_id", type="long"},
             {name="shop_id", type="long"},
+            {name="history_id", type="long"}
         }
     },
     token = {
