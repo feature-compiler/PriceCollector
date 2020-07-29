@@ -1,12 +1,13 @@
 
 { 
-    "method": "CheckToken",
-    "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8"}]
+  "method": "CheckToken",
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8"}]
 }
 
 {
   "method": "CreateUsers",
-  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8", "users": [{"username": "Игорь", "phone": "89156389216"},{"username": "Петя","phone": "89247247246"}]}]
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8",
+              "users": [{"username": "Игорь", "phone": "89156389216"},{"username": "Петя","phone": "89247247246"}]}]
 
 }
 
@@ -28,12 +29,20 @@
 
 {
   "method": "SendGoods",
-  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8", "goods": [{"barcode": "54491472", "price": 80.75, "datetime":"2012-04-23T18:25:43.511Z", "uuid":"a5bf7d6a-696c-4ed7-9798-04594b88dec6"}]}]
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8",
+              "goods": [{"barcode": "54491472", "price": 80.75, "datetime":"2012-04-23T18:25:43.511Z", "uuid":"a5bf7d6a-696c-4ed7-9798-04594b88dec6"}]}]
 
 }
 
 {
   "method": "CreateGoods",
-  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8", "goods": [{"uuid":"123456", "barcodes":["54491472", "54491473"], "name": "Coca Cola 0.4"} ]}]
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8",
+              "goods": [{"uuid":"123456", "barcodes":["54491472", "54491473"], "name": "Coca Cola 0.4"} ]}]
 
+}
+
+{
+  "method": "CreateShops",
+  "params": [{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJ2YWxpZCI6dHJ1ZX0.aNmY8a52VAc2ZrHsz2PLxrnw2LEyix9try6OJQLVpC8",
+              "shops": [{"name": "Пятерочка, Оруженйный 41", "uuid": "a5bf7d6a-696c-4ed7-9798-04594b88dec6"}, {"name": "Азбука вкуса, петровка 26", "uuid": "b1b8d80c-02b8-4631-8ce3-e04045666a44"}]}]
 }

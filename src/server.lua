@@ -99,7 +99,7 @@ function CreateGoods(request, data)
 end
 
 
-function create_shops(request, data)
+function CreateShops(request, data)
     
     local accepted, result = pcall(users.decode_token, users, data.token)
     
