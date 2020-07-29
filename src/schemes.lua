@@ -54,6 +54,7 @@ local schema = {
         type="record",
         name="barcode_schema",
         fields={
+            {name="id", type="long"},
             {name="product_id", type="long"},
             {name="barcode", type="string"},
         }

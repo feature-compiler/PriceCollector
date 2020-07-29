@@ -48,7 +48,7 @@ function OTPCheck(request, data)
 end
 
 
-function goods_info(request, data)
+function GoodsInfo(request, data)
     
     local accepted, result = pcall(users.decode_token, users, data.token)
     
@@ -177,14 +177,14 @@ end
 -- for _, price in pairs(test_data.prices) do
 --     prices:add_price(price)
 -- end
-for _, user in pairs(test_data.users) do
-    users:add_user(user)
-end
+-- for _, user in pairs(test_data.users) do
+--     users:add_user(user)
+-- end
 
-users:add_token(1)
-
-print(json.encode(prices:get_shops()))
-print(json.encode(prices:get_products()))
 print(json.encode(prices:get_goods()))
 print(json.encode(prices:get_barcodes()))
+print(json.encode(prices:get_products()))
+
+print(json.encode(prices:get_price_history()))
+
 

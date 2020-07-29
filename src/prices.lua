@@ -43,6 +43,13 @@ local function init_space()
         if_not_exists = if_not_exists,
     })
 
+    prices:create_index('is_approved',{
+        type = "tree",
+        parts = {'approved'},
+        unique = false,
+        if_not_exists = if_not_exists,
+    })
+
     local products = box.schema.space.create(
         'products',
         {
@@ -113,6 +120,7 @@ local function init_space()
         {
             -- формат хранимых кортежей
             format = {
+                {'id', 'unsigned'},
                 {'product_id', 'unsigned'},
                 {'barcode','string'},
             },
@@ -120,11 +128,29 @@ local function init_space()
             if_not_exists = if_not_exists,
         }
     )
+    box.schema.sequence.create ('barcodes_id',
+    {if_not_exists = if_not_exists})
+
+
+    barcodes:create_index('primary', {
+        type = "hash",
+        parts = {'id'},
+        sequence = 'barcodes_id',
+        unique=true,
+        if_not_exists = if_not_exists,
+    })
 
     barcodes:create_index('secondary', {
         type = "tree",
         parts = {'barcode'},
         unique = true,
+        if_not_exists = if_not_exists,
+    })
+
+    barcodes:create_index('product', {
+        type = "tree",
+        parts = {'product_id'},
+        unique = false,
         if_not_exists = if_not_exists,
     })
 
@@ -202,6 +228,7 @@ local app = {
 
 
      add_barcode = function (self, barcode)
+        barcode.id = box.sequence.barcodes_id:next()
         local ok, tuple = self.barcode_model.flatten(barcode)
 
         if not ok then
@@ -271,7 +298,7 @@ local app = {
         local price_data = {id = price.id,
                             price = price.price,
                             datetime=price.datetime,
-                            approved=true,
+                            approved=false,
                             product_id=barcode.product_id,
                             shop_id=shop.id}
         
@@ -317,6 +344,36 @@ local app = {
         end
         
         return goods_
+    end,
+
+
+    get_price_history = function(self)
+        
+       local history = {}
+       local unapproved =  box.space.prices.index.is_approved:select(false)
+       for _, raw_price in pairs(unapproved) do
+            local ok, price = self.price_model.unflatten(raw_price)
+
+            local shop = box.space.shops:get(price.shop_id)
+
+            local barcodes = {}
+            for _, barcode in pairs(box.space.barcodes.index.product:select(price.product_id)) do
+                table.insert(barcodes, barcode[3])
+            end
+            
+            local dataframe = {
+                barcodes=barcodes,
+                PriceHistory={
+                    id = price.id,
+                    price = price.price,
+                    shop_uuid = shop.uuid
+                }
+            }
+            table.insert(history, dataframe)
+
+       end
+
+       return history
     end,
 
     
