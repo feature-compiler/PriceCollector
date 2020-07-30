@@ -109,7 +109,6 @@ local app = {
         user.shadow = 'nil'
         user.otp_time_created = 0
 
-        print(json.encode(user))
 
         local ok, tuple = self.user_model.flatten(user)
 

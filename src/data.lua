@@ -20,7 +20,7 @@ local good_1 = {barcodes={"54491472", "54491473", "23123"},  uuid="123456", name
 goods.good_1 = good_1
 
 --price_record
-local price_1 = {price=90.75, barcode="54491472", datetime="2012-04-23T18:25:43.511Z", uuid="250"}
+local price_1 = {price=90.70, barcode="54491472", datetime="2012-04-23T18:25:43.511Z", uuid="250"}
 prices.price_1 = price_1
 
 M.users = users

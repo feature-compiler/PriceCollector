@@ -218,12 +218,12 @@ local app = {
         local ok_prod, product = avro.create(schema.product)
         local ok_s, shop = avro.create(schema.shop)
         local ok_b, barcode = avro.create(schema.barcode)
-
         if ok_p and ok_prod and ok_s and ok_b then
             local ok_cp, compiled_price = avro.compile(price)
             local ok_cprod, compiled_product = avro.compile(product)
             local ok_cs, compiled_shop = avro.compile(shop)
             local ok_cb, compiled_barcode = avro.compile(barcode)
+            
 
             if ok_cp and ok_cprod and ok_cs and ok_cb then
                 self.price_model = compiled_price
@@ -311,14 +311,14 @@ local app = {
 
 
     add_price = function(self, price)
-
+        --функция создания цены
         price.id = box.sequence.prices_id:next()
         
-        --функция создания цены
         --берем штрихкод и смотрим есть ли совпадения по карточкам
         local barcode_exist = box.space.barcodes.index.secondary:get(price.barcode)
         local barcode
         local shop
+        local history
 
         --если нет - создаем пустую карточку товара
         if barcode_exist == nil then
@@ -342,13 +342,20 @@ local app = {
         end
 
         local history_pattern = {shop.id, barcode.product_id}
-        local history = box.space.history.index.pattern:select({history_pattern})
+        local histories = box.space.history.index.pattern:select({history_pattern})
 
-        if table.getn(history) == 0 then
+        if table.getn(histories) == 0 then
             local id = box.sequence.history_id:next()
             history = box.space.history:insert{id, history_pattern, false}
         else
-            history = #history
+            local history = histories[#histories]
+            history = utils.tuple_to_table(box.space.history:format(),history)
+            history.approved = false
+            
+            history = box.tuple.new(history.id, history.price_pattern, history.approved)
+            box.space.history:replace(history)
+
+            history = utils.tuple_to_table(history)
         end
 
         -- собираем нашего франкенштейна
@@ -406,9 +413,6 @@ local app = {
         local goods_ =  {}
         for _, price in box.space.prices:pairs() do
             local ok, unflatted = self.price_model.unflatten(price)
-            -- if unflatted.approved == true then
-            --     --append price_ to goods
-            -- end
             table.insert(goods_, unflatted)
         end
         
@@ -417,12 +421,12 @@ local app = {
 
 
     get_price_history = function(self)
-
+        --собирает все неподтверженные сущности истории цен
+        --и все прилагающие к ним неподтвержденные цены
         local histories = {}
         for _, history_ in pairs(box.space.history.index.is_approved:select(false)) do
             local history = utils.tuple_to_table(box.space.history:format(), history_)
             
-            print(json.encode(history))
             local shop = box.space.products:get(history.price_pattern[2])
             local product = box.space.products:get(history.price_pattern[2])
             
@@ -430,13 +434,13 @@ local app = {
             for _, barcode in pairs(box.space.barcodes.index.product:select(product.id)) do
                 table.insert(barcodes, barcode[3])
             end
-            
+            --шаблон истории цен
             local dataframe = {
                 barcodes = barcodes,
                 history_id = history.id,
                 price_history = {}
             }
-
+            --цены продуктов, которые упаковываем в шаблон истории цен
             for _, price_ in pairs(box.space.prices.index.history:select(history.id)) do
                 local ok, price = self.price_model.unflatten(price_)
 
@@ -457,22 +461,31 @@ local app = {
 
 
     accept_price_history = function(self, history_id)
-        
-        local history = box.space.history:get(history_id)
-        if history ~= nil then
-            history.app = true
+        --ищет сущность истории цен
+        --а также все прилагающие к ней цены
+        --переводит их в состояние подтверждено
+        local history_exist = box.space.history:get(history_id)
+        if history_exist ~= nil then
+
+            local history = utils.tuple_to_table(box.space.history:format(), history_exist)
+            
+            history.approved = true
+
+            box.space.history:replace(box.tuple.new(history.id, history.price_pattern, history.approved))
+            --цены
+            for _, price_ in pairs(box.space.prices.index.history:select(history_id)) do
+                local _, price = self.price_model.unflatten(price_)
+                price.approved = true
+                local _, tuple = self.price_model.flatten(price)
+                box.space.prices:replace(tuple)
+            end
+
         else
             error("History not found!")
         end
 
         return true
     end,
-
-
-    sql_query = function(self)
-        --return box.space.prices.execi
-    end,
-  
 
     get_good = function(self, barcode_value, shop_uuid)
 
@@ -500,22 +513,6 @@ local app = {
 
         --устанавливаем цену nil для данного магазина если цен не найдено
         if table.getn(shop_prices) == 0 then
-
-            -- local price_data = {id=box.sequence.prices_id:next(),
-            --                     price=nil,
-            --                     datetime=tostring(os.date()),
-            --                     approved=true,
-            --                     product_id=barcode.product_id,
-            --                     shop_id=shop.id}
-
-            -- local ok, tuple = self.price_model.flatten(price_data)
-
-            -- if not ok then
-            --     error("Invalid data")
-            -- end
-
-            -- box.space.prices:replace(tuple)
-
             return {name=product.name, price=0}
         end
 

@@ -22,6 +22,16 @@ local function tuple_to_table(format, tuple)
     return map
 end
 
+local function table_to_tuple(table_)
+
+    local tuple_ = {}
+    
+    for _, value in pairs(table_) do
+        table.insert(tuple_, value)
+    end
+
+    return tuple_
+end
 
 local function tables_to_table(box_space, model)
 
@@ -85,7 +95,7 @@ local function generate_uuid()
 end
 
 
-  
+M.table_to_tuple = table_to_tuple
 M.read_json = read_json
 M.tables_to_table = tables_to_table
 M.json_response = json_response

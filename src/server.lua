@@ -162,30 +162,3 @@ function GetAll(request, data)
 end
 
 
--- for _, shop in pairs(test_data.shops) do
---     prices:add_shop(shop)
--- end
-
-
--- for _, good in pairs(test_data.goods) do
---     local product_data = {name=good.name, uuid=good.uuid}
---     local barcodes = good.barcodes
---     prices:add_good(barcodes, product_data)
--- end
-
-
--- for _, price in pairs(test_data.prices) do
---     prices:add_price(price)
--- end
--- for _, user in pairs(test_data.users) do
---     users:add_user(user)
--- end
-
-print(json.encode(prices:get_goods()))
-print(json.encode(prices:get_barcodes()))
-print(json.encode(prices:get_products()))
-
-print(json.encode(prices:get_histories()))
-print(json.encode(prices:get_price_history()))
-
-
